@@ -1,19 +1,19 @@
 let modInfo = {
-	name: "The ??? Tree",
-	id: "mymod",
-	author: "nobody",
-	pointsName: "points",
+	name: "The Komasan Tree",
+	id: "kamoson",
+	author: "sleepground123",
+	pointsName: "komacoins",
 	discordName: "",
 	discordLink: "",
 	initialStartPoints: new Decimal (10), // Used for hard resets and new players
 	
-	offlineLimit: 1,  // In hours
+	offlineLimit: 6,  // In hours
 }
 
 // Set your version in num and name
 let VERSION = {
 	num: "0.0",
-	name: "Literally nothing",
+	name: "Komasan",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
@@ -42,6 +42,13 @@ function getPointGen() {
 		return new Decimal(0)
 
 	let gain = new Decimal(1)
+	if (hasUpgrade('p', 11)) gain = gain.times(2)
+	if (hasUpgrade('p', 11) && hasUpgrade('p', 23)) gain = gain.times(2)
+	if (hasUpgrade('p', 12)) gain = gain.times(4)
+	if (hasUpgrade('p', 12) && hasUpgrade('p', 23)) gain = gain.times(2)
+	if (hasUpgrade('p', 13)) gain = gain.times(6)
+	if (hasUpgrade('p', 13) && hasUpgrade('p', 23)) gain = gain.times(2)
+	if (hasUpgrade('p', 21)) gain = gain.times(upgradeEffect('p', 21))
 	return gain
 }
 
