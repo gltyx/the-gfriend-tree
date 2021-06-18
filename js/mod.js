@@ -1,26 +1,27 @@
 let modInfo = {
-	name: "The Komasan Tree",
-	id: "kamoson",
+	name: "The Element Tree",
+	id: "element",
 	author: "sleepground123",
-	pointsName: "points",
+	pointsName: "Matter",
 	modFiles: ["layers.js", "tree.js"],
 
 	discordName: "",
 	discordLink: "",
-	initialStartPoints: new Decimal (10), // Used for hard resets and new players
-	offlineLimit: 6,  // In hours
+	initialStartPoints: new Decimal (1), // Used for hard resets and new players
+	offlineLimit: 0,  // In hours
 }
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0",
-	name: "Komasan",
+	num: "0.0.2",
+	name: "Helium Update",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
-	<h3>v0.0</h3><br>
-		- Added things.<br>
-		- Added stuff.`
+	<h3>v0.0.2 - Helium Update</h3><br>
+		- Added Helium.<br>
+	<h3>v0.0.1 - Hydrogen Update</h3><br>
+		- Added Hydrogen.<br>`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
 
@@ -41,15 +42,12 @@ function canGenPoints(){
 function getPointGen() {
 	if(!canGenPoints())
 		return new Decimal(0)
-
-	let gain = new Decimal(1)
-	if (hasUpgrade('p', 11)) gain = gain.times(2)
-	if (hasUpgrade('p', 11) && hasUpgrade('p', 23)) gain = gain.times(2)
-	if (hasUpgrade('p', 12)) gain = gain.times(4)
-	if (hasUpgrade('p', 12) && hasUpgrade('p', 23)) gain = gain.times(2)
-	if (hasUpgrade('p', 13)) gain = gain.times(6)
-	if (hasUpgrade('p', 13) && hasUpgrade('p', 23)) gain = gain.times(2)
-	if (hasUpgrade('p', 21)) gain = gain.times(upgradeEffect('p', 21))
+	let gain = new Decimal(0)
+	if (hasUpgrade("H", 11)) gain = gain.add(0.1)
+	if (hasUpgrade("H", 12)) gain = gain.times(upgradeEffect("H", 12))
+	if (hasUpgrade("H", 14)) gain = gain.times(upgradeEffect("H", 14))
+	if (player["He"].unlocked) gain = gain.times(tmp["He"].effect)
+	if (hasUpgrade("He", 13)) gain = gain.times(upgradeEffect("He", 13))
 	return gain
 }
 
@@ -69,11 +67,6 @@ function isEndgame() {
 
 
 // Less important things beyond this point!
-
-// Style for the background, can be a function
-var backgroundStyle = {
-
-}
 
 // You can change this if you have things that can be messed up by long tick lengths
 function maxTickLength() {
