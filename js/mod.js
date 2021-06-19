@@ -13,11 +13,13 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0.2",
-	name: "Helium Update",
+	num: "0.0.3",
+	name: "Achievement Update",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+	<h3>v0.0.3 - Achievement Update</h3><br>
+		- Added 28 Achievements.<br>
 	<h3>v0.0.2 - Helium Update</h3><br>
 		- Added Helium.<br>
 	<h3>v0.0.1 - Hydrogen Update</h3><br>
@@ -58,6 +60,10 @@ function addedPlayerData() { return {
 // Display extra things at the top of the page
 var displayThings = [
 ]
+
+var backgroundStyle = {
+
+}
 
 // Determines when the game "ends"
 function isEndgame() {
