@@ -13,11 +13,19 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0.3",
-	name: "Achievement Update",
+	num: "0.0.6",
+	name: "Title Update",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+	<h3>v0.0.6 - UI Update</h3><br>
+		- Upgrade titles are shown.<br>
+	<h3>v0.0.5 - Lithium Update</h3><br>
+		- Added Lithium.<br>
+		- Added 7 new Achievements. (total 35)<br>
+	<h3>v0.0.4 - Anti-Inflation Update</h3><br>
+		- Significantly nerfed 2nd Helium Upgrade.<br>
+		- 1st Helium Upgrade's softcap is lower, but the effect reaches the softcap faster.<br>
 	<h3>v0.0.3 - Achievement Update</h3><br>
 		- Added 28 Achievements.<br>
 	<h3>v0.0.2 - Helium Update</h3><br>
@@ -50,6 +58,8 @@ function getPointGen() {
 	if (hasUpgrade("H", 14)) gain = gain.times(upgradeEffect("H", 14))
 	if (player["He"].unlocked) gain = gain.times(tmp["He"].effect)
 	if (hasUpgrade("He", 13)) gain = gain.times(upgradeEffect("He", 13))
+	if (player["Li"].unlocked) gain = gain.times(tmp["Li"].effect)
+	if (hasUpgrade("Li", 13)) gain = gain.times(upgradeEffect("Li", 13))
 	return gain
 }
 
@@ -67,7 +77,7 @@ var backgroundStyle = {
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.points.gte(new Decimal("e280000000"))
+	return player.points.gte(new Decimal("e19951207"))
 }
 
 
@@ -76,7 +86,7 @@ function isEndgame() {
 
 // You can change this if you have things that can be messed up by long tick lengths
 function maxTickLength() {
-	return(3600) // Default is 1 hour which is just arbitrarily large
+	return(300) // Default is 1 hour which is just arbitrarily large
 }
 
 // Use this if you need to undo inflation from an older version. If the version is older than the version that fixed the issue,
