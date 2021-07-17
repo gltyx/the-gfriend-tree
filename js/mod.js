@@ -13,11 +13,14 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0.6",
-	name: "Title Update",
+	num: "0.0.7",
+	name: "Deuterium Update",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+	<h2>v0.0 - Pre-Release Versions</h2><br>
+	<h3>v0.0.7 - Deuterium Update</h3><br>
+		- Added Deuterium.<br>
 	<h3>v0.0.6 - UI Update</h3><br>
 		- Upgrade titles are shown.<br>
 	<h3>v0.0.5 - Lithium Update</h3><br>
@@ -58,6 +61,7 @@ function getPointGen() {
 	if (hasUpgrade("H", 14)) gain = gain.times(upgradeEffect("H", 14))
 	if (player["He"].unlocked) gain = gain.times(tmp["He"].effect)
 	if (hasUpgrade("He", 13)) gain = gain.times(upgradeEffect("He", 13))
+	if (hasMilestone("He", 1)) gain = gain.times(player["Ach"].points.div(5).add(1))
 	if (player["Li"].unlocked) gain = gain.times(tmp["Li"].effect)
 	if (hasUpgrade("Li", 13)) gain = gain.times(upgradeEffect("Li", 13))
 	return gain
@@ -69,6 +73,7 @@ function addedPlayerData() { return {
 
 // Display extra things at the top of the page
 var displayThings = [
+	"Layers are reset along branches."
 ]
 
 var backgroundStyle = {

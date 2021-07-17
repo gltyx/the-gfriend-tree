@@ -26,7 +26,9 @@ addLayer("H", {
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
-        return new Decimal(1)
+		let exp = new Decimal(1)
+		if (player["D"].unlocked) exp = exp.times(tmp["D"].effect)
+        return exp
     },
     row: 0, // Row the layer is in on the tree (0 is the first row)
 	upgrades: {
@@ -50,7 +52,7 @@ addLayer("H", {
 			title: "H-Matter Boost",
 			description: "Total Hydrogen boosts Matter gain.",
 			effect() {
-				let power = new Decimal(1)
+				let power = new Decimal(0.75)
 				let x = player["H"].total.pow(power)
 				let sc = new Decimal(100000)
 				if (hasMilestone("H", 1)) sc = sc.times(100)
@@ -78,7 +80,7 @@ addLayer("H", {
 			title: "Self Boost",
 			description: "Total Hydrogen boosts Hydrogen gain.",
 			effect() {
-				let power = new Decimal(0.25)
+				let power = new Decimal(0.333)
 				let x = player["H"].total.add(1).pow(power)
 				let sc = new Decimal(100000)
 				if (x.gt(sc))
@@ -182,8 +184,9 @@ addLayer("He", {
 	effect() {
         if (!player["He"].unlocked) return new Decimal(1)
         let x = new Decimal(1)
-		let power = new Decimal(2)
-        x = x.times(player["He"].total.add(1).add(hasUpgrade("He", 12)*upgradeEffect("He", 12)).pow(power))
+		let power = new Decimal(1.5)
+		if (hasUpgrade("He", 12)) power = power.add(upgradeEffect("He", 12))
+        x = x.times(player["He"].total.add(1).pow(power))
         return x
     },
     effectDescription() {
@@ -235,13 +238,12 @@ addLayer("He", {
 		12: {
 			name: "He Enhancement",
 			title: "He Enhancement",
-			description: "Helium boost works as if there are 9 more of them.",
+			description: "Helium boost power is increased by 0.1.",
 			effect() {
-				let x = new Decimal(9)
-				if (hasMilestone("He", 1)) x = x.add(17999991)
+				let x = new Decimal(0.1)
 				return x
 			},
-			effectDisplay() { return "+"+format(upgradeEffect(this.layer, this.id)) },
+			effectDisplay() { return "+"+format(upgradeEffect(this.layer, this.id))+" to power" },
 			unlocked() { return hasUpgrade("He", 11) },
 			cost: new Decimal(10),
         },
@@ -262,7 +264,7 @@ addLayer("He", {
 		14: {
 			name: "H Upgrade Boost",
 			title: "Power Boost",
-			description: "4th and 5th Hydrogen upgrades are stronger based on the number of Elements unlocked.",
+			description: "'Doubler' and 'Doubler II' are stronger based on the number of Elements unlocked.",
 			effect() {
 				let x = new Decimal(1)
 				if (player["He"].unlocked) x = x.add(2)
@@ -282,7 +284,7 @@ addLayer("He", {
         },
 		1: {
             requirementDescription: "30,000,000 Helium",
-            effectDescription: "'He Enhancement' is 2,000,000x as powerful.",
+            effectDescription: "Achievement Points boost Matter gain.",
             done() { return player["He"].best.gte(3e7) }
         },
 		2: {
@@ -327,8 +329,8 @@ addLayer("Li", {
 	},
 	effect() {
         if (!player["Li"].unlocked) return new Decimal(1)
-        let x = new Decimal(1)
-		let power = new Decimal(6.3)
+        let x = new Decimal(10)
+		let power = new Decimal(4.5)
         x = x.times(player["Li"].total.add(1).pow(power))
         return x
     },
@@ -357,7 +359,7 @@ addLayer("Li", {
 			description: "Lithium also boosts Hydrogen gain.",
 			effect() {
 				let power = new Decimal(2)
-				let x = player["Li"].total.add(1).pow(power).times(1000)
+				let x = player["Li"].total.add(1).pow(power).times(100)
 				let sc = new Decimal(1e40)
 				if (x.gt(sc))
 				{
@@ -400,7 +402,7 @@ addLayer("Li", {
 				if (softcapped) { return format(upgradeEffect(this.layer, this.id))+"x (softcapped)" }
 				return format(upgradeEffect(this.layer, this.id))+"x"
 			},
-			unlocked() { return true },
+			unlocked() { return hasUpgrade("Li", 11) },
 			cost: new Decimal(30),
         },
 		13: {
@@ -408,8 +410,8 @@ addLayer("Li", {
 			title: "Li-Matter Boost",
 			description: "Lithium boosts Matter gain.",
 			effect() {
-				let x = new Decimal(1000)
-				let power = new Decimal(0.3)
+				let x = new Decimal(100)
+				let power = new Decimal(0.2)
 				x = x.times(player["Li"].total.add(1).pow(power))
 				return x
 			},
@@ -420,7 +422,7 @@ addLayer("Li", {
 		14: {
 			name: "H Upgrade Boost 2",
 			title: "Power Boost II",
-			description: "4th and 5th Hydrogen upgrades are stronger based on Achievement Points.",
+			description: "'Doubler' and 'Doubler II' are stronger based on Achievement Points.",
 			effect() {
 				let x = new Decimal(1)
 				let per = new Decimal(0.005)
@@ -441,7 +443,7 @@ addLayer("Li", {
         },
 		1: {
             requirementDescription: "90,000,000 Lithium",
-            effectDescription: "4th Lithium Upgrade is 1.2x more powerful.",
+            effectDescription: "'Power Boost II' is 20% more powerful.",
             done() { return player["Li"].best.gte(9e7) }
         },
 		2: {
@@ -470,6 +472,59 @@ addLayer("Li", {
 		if (layers[resettingLayer].row > this.row || layers[resettingLayer].position > this.position) layerDataReset("Li", keep)
 	},
 })
+addLayer("D", {
+    name: "Deuterium", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "D", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: -1, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: false,
+		points: new Decimal(0),
+    }},
+    color: "#c0e000",
+    requires() {
+		let x = new Decimal(1e40)
+		return x
+	},
+	effect() {
+        if (!player["D"].unlocked) return new Decimal(1)
+        let x = new Decimal(1)
+		let power = new Decimal(0.05)
+        x = x.add(player["D"].total.times(power))
+        return x
+    },
+    effectDescription() {
+		let desc = "which raises Hydrogen gain <h2 style='color:" + this.color + "; text-shadow:" + this.color + " 0px 0px 10px'>^" + format(this.effect()) + "</h2>."
+        return desc
+    },
+	branches: ["H"],
+    resource: "Deuterium", // Name of prestige currency
+    baseResource: "Hydrogen", // Name of resource prestige is based on
+    baseAmount() {return player["H"].points}, // Get the current amount of baseResource
+    type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+    exponent: 3, // Prestige currency exponent
+	base: 1e5,
+	canBuyMax() {return false},
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        mult = new Decimal(1)
+        return mult
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+    row: 1, // Row the layer is in on the tree (0 is the first row)
+	milestones: {
+        0: {
+            requirementDescription: "10 Deuterium", // e283 Hydrogen
+            effectDescription: "Does nothing.",
+            done() { return player["D"].points.gte(10) }
+        },
+    },
+	milestonePopups: false,
+    layerShown(){return hasMilestone("Ach", 0)},
+	passiveGeneration(){return false},
+	doReset(resettingLayer) {
+	},
+})
 addLayer("Ach", {
     name: "Achievement Points", // This is optional, only used in a few places, If absent it just uses the layer id.
     symbol: "Ach", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -485,12 +540,23 @@ addLayer("Ach", {
 		"Achievements": {
 			content: [
 				"main-display",
-				["prestige-button"],
 				"achievements",
-				"blank"
+			],
+		},
+		"Milestones": {
+			content: [
+				"main-display",
+				"milestones",
 			],
 		},
 	},
+	milestones: {
+        0: {
+            requirementDescription: "80 Achievement Points",
+            effectDescription: "Unlock Deuterium under Hydrogen.",
+            done() { return player["Ach"].points.gte(80) }
+        },
+    },
 	achievements: {
 		11: {
 			name: "First Creation",
