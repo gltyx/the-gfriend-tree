@@ -232,7 +232,7 @@ addLayer("money", {
             buy() {
                 if (this.canAfford)
                 {
-                    player[this.layer].points = player[this.layer].points.sub(this.cost)
+                    player[this.layer].points = player[this.layer].points.sub(this.cost())
                     addBuyables(this.layer, this.id, 1)
                 }
             },
@@ -259,7 +259,7 @@ addLayer("money", {
             buy() {
                 if (this.canAfford)
                 {
-                    player[this.layer].points = player[this.layer].points.sub(this.cost)
+                    player[this.layer].points = player[this.layer].points.sub(this.cost())
                     addBuyables(this.layer, this.id, 1)
                 }
             },
@@ -285,7 +285,7 @@ addLayer("money", {
             buy() {
                 if (this.canAfford)
                 {
-                    player[this.layer].points = player[this.layer].points.sub(this.cost)
+                    player[this.layer].points = player[this.layer].points.sub(this.cost())
                     addBuyables(this.layer, this.id, 1)
                 }
             },
