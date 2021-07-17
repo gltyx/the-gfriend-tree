@@ -1,848 +1,602 @@
-addLayer("H", {
-    name: "Hydrogen", // This is optional, only used in a few places, If absent it just uses the layer id.
-    symbol: "H", // This appears on the layer's node. Default is the id with the first letter capitalized
+addLayer("money", {
+    name: "Money", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "$", // This appears on the layer's node. Default is the id with the first letter capitalized
     position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
         unlocked: true,
-		points: new Decimal(0),
+		points: new Decimal(1),
     }},
-    color: "#e0ff00", // Diatomic Nonmetal
-    requires() {
-		let x = new Decimal(1)
-		if (hasMilestone("H", 0)) x = new Decimal(0.1)
-		return x
-	},
-    resource: "Hydrogen", // Name of prestige currency
-    baseResource: "Matter", // Name of resource prestige is based on
-    baseAmount() {return player.points}, // Get the current amount of baseResource
-    type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-    exponent: 0.7, // Prestige currency exponent
-    gainMult() { // Calculate the multiplier for main currency from bonuses
-        mult = new Decimal(1)
-		if (hasUpgrade("H", 13)) mult = mult.times(upgradeEffect("H", 13))
-		if (hasUpgrade("H", 15)) mult = mult.times(upgradeEffect("H", 15))
-		if (hasUpgrade("He", 11)) mult = mult.times(upgradeEffect("He", 11))
-		if (hasUpgrade("Li", 11)) mult = mult.times(upgradeEffect("Li", 11))
-        return mult
-    },
-    gainExp() { // Calculate the exponent on main currency from bonuses
-        return new Decimal(1)
-    },
+    color: "#5fad70",
+    resource: "Money", // Name of prestige currency
+    type: "none", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
     row: 0, // Row the layer is in on the tree (0 is the first row)
-	upgrades: {
-		11: {
-			name: "H11",
-			title: "Start",
-			description: "Gain 0.1 Matter per second.",
-			effect() {
-				let x = new Decimal(0.1)
-				if (player["He"].unlocked) x = x.times(tmp["He"].effect)
-				if (player["Li"].unlocked) x = x.times(tmp["Li"].effect)
-				return x
-			},
-			effectDisplay() {
-				return format(upgradeEffect(this.layer, this.id))+"/s"
-			},
-			cost: new Decimal(1),
+    tabFormat: [
+        ["main-display", 2],
+        "blank",
+        ["display-text",
+            function() { 
+                return 'You have ' + format(player.points) + ' Popularity' 
+            },
+            { 
+                "color": "#dfdfdf"
+            }],
+        "blank",
+        "buyables",
+        "blank",
+        "upgrades",
+    ],
+    upgrades: {
+        11: {
+            title: "Begin",
+            description: "Earn Money based on Popularity.",
+            cost() {
+                return new Decimal(1)
+            },
+            effect() {
+                return player.points.times(0.1)
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"/s"
+            },
+            unlocked() {
+                return true
+            },
         },
-		12: {
-			name: "H12",
-			title: "H-Matter Boost",
-			description: "Total Hydrogen boosts Matter gain.",
-			effect() {
-				let power = new Decimal(1)
-				let x = player["H"].total.pow(power)
-				let sc = new Decimal(100000)
-				if (hasMilestone("H", 1)) sc = sc.times(100)
-				if (x.gt(sc))
-				{
-					let y = x.div(sc)
-					y = y.pow(0.125)
-					x = y.times(sc)
-				}
-				return x
-			},
-			effectDisplay() {
-				let softcapped = false
-				let sc = new Decimal(100000)
-				if (hasMilestone("H", 1)) sc = sc.times(100)
-				if (upgradeEffect(this.layer, this.id).gt(sc)) softcapped = true
-				if (softcapped) { return format(upgradeEffect(this.layer, this.id))+"x (softcapped)" }
-				return format(upgradeEffect(this.layer, this.id))+"x"
-			},
-			unlocked() { return hasUpgrade("H", 11) },
-			cost: new Decimal(3),
+        12: {
+            title: "Youtube Account",
+            description: "Gain 0.05 Popularity per second.",
+            cost() {
+                return new Decimal(2)
+            },
+            effect() {
+                return new Decimal(0.05)
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"/s"
+            },
+            unlocked() {
+                return hasUpgrade('money', 11)
+            },
         },
-		13: {
-			name: "H13",
-			title: "Self Boost",
-			description: "Total Hydrogen boosts Hydrogen gain.",
-			effect() {
-				let power = new Decimal(0.25)
-				let x = player["H"].total.add(1).pow(power)
-				let sc = new Decimal(100000)
-				if (x.gt(sc))
-				{
-					let y = x.div(sc)
-					y = y.pow(0.125)
-					x = y.times(sc)
-				}
-				return x
-			},
-			effectDisplay() {
-				let softcapped = false
-				let sc = new Decimal(100000)
-				if (upgradeEffect(this.layer, this.id).gt(sc)) softcapped = true
-				if (softcapped) { return format(upgradeEffect(this.layer, this.id))+"x (softcapped)" }
-				return format(upgradeEffect(this.layer, this.id))+"x"
-			},
-			unlocked() { return hasUpgrade("H", 12) },
-			cost: new Decimal(20),
+        13: {
+            title: "Funding Site",
+            description: "Money gain is multiplied by the number of Money upgrades bought plus 1.16.",
+            cost() {
+                return new Decimal(10)
+            },
+            effect() {
+                return new Decimal(player.money.upgrades.length).add(1.16)
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x"
+            },
+            unlocked() {
+                return hasUpgrade('money', 12)
+            },
         },
-		14: {
-			name: "H14",
-			title: "Doubler",
-			description: "Double Matter gain.",
-			effect() {
-				let x = new Decimal(2)
-				if (hasUpgrade("He", 14)) x = x.pow(upgradeEffect("He", 14))
-				if (hasUpgrade("Li", 14)) x = x.pow(upgradeEffect("Li", 14))
-				return x
-			},
-			effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" },
-			unlocked() { return hasUpgrade("H", 13) },
-			cost: new Decimal(500),
+        14: {
+            title: "Wadiz Account",
+            description: "Popularity gain is multiplied by the number of Money upgrades bought plus 1.16.",
+            cost() {
+                return new Decimal(100)
+            },
+            effect() {
+                return new Decimal(player.money.upgrades.length).add(1.16)
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x"
+            },
+            unlocked() {
+                return hasUpgrade('money', 13)
+            },
         },
-		15: {
-			name: "H15",
-			title: "Doubler II",
-			description: "Double Hydrogen gain.",
-			effect() {
-				let x = new Decimal(2)
-				if (hasUpgrade("He", 14)) x = x.pow(upgradeEffect("He", 14))
-				if (hasUpgrade("Li", 14)) x = x.pow(upgradeEffect("Li", 14))
-				return x
-			},
-			effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" },
-			unlocked() { return hasUpgrade("H", 14) },
-			cost: new Decimal(3200),
+        15: {
+            title: "Campaign",
+            description: "Popularity gain is multiplied x1.5 for every Money upgrade bought.",
+            cost() {
+                return new Decimal(1000)
+            },
+            effect() {
+                return new Decimal(1.5).pow(player.money.upgrades.length)
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x"
+            },
+            unlocked() {
+                return hasUpgrade('money', 14)
+            },
+        },
+        21: {
+            title: "Yet Another Popularity Upgrade",
+            description: "Popularity gain is raised ^1.025 for every Money upgrade bought, if it is above 1.",
+            cost() {
+                return new Decimal(5000)
+            },
+            effect() {
+                return new Decimal(1.025).pow(player.money.upgrades.length)
+            },
+            effectDisplay() {
+                return "^"+format(upgradeEffect(this.layer, this.id))
+            },
+            unlocked() {
+                return hasUpgrade('money', 15)
+            },
+        },
+        22: {
+            title: "Advertising I",
+            description: "Unlock the first Money buyable.",
+            cost() {
+                return new Decimal(15000)
+            },
+            unlocked() {
+                return hasUpgrade('money', 21)
+            },
+        },
+        23: {
+            title: "Advertising II",
+            description: "<b>Banner Ad</b> also boosts Money gain.",
+            cost() {
+                return new Decimal(50000)
+            },
+            unlocked() {
+                return hasUpgrade('money', 22)
+            },
+        },
+        24: {
+            title: "Advertising III",
+            description: "Unlock the second Money buyable.",
+            cost() {
+                return new Decimal(250000)
+            },
+            unlocked() {
+                return hasUpgrade('money', 23)
+            },
+        },
+        25: {
+            title: "Advertising IV",
+            description: "<b>Banner Ad</b> effect is raised ^1.25.",
+            cost() {
+                return new Decimal(5e7)
+            },
+            unlocked() {
+                return hasUpgrade('money', 24)
+            },
+        },
+        31: {
+            title: "Found a Business",
+            description: "Unlock the third Money buyable.",
+            cost() {
+                return new Decimal(1e9)
+            },
+            unlocked() {
+                return hasUpgrade('money', 25)
+            },
+        },
+        32: {
+            title: "Attract Investors",
+            description: "<b>Investment</b> is stronger based on the levels of <b>Banner Ad</b> and <b>Video Ad</b> buyables.",
+            cost() {
+                return new Decimal(4e10)
+            },
+            unlocked() {
+                return hasUpgrade('money', 31)
+            },
+        },
+        33: {
+            title: "Conceptualize",
+            description: "<b>Video Ad</b> levels directly boost <b>Investment</b>.",
+            cost() {
+                return new Decimal(1e16) // GFRIEND debut 2015.1.16
+            },
+            unlocked() {
+                return hasUpgrade('money', 32)
+            },
+        },
+        34: {
+            title: "Prepare",
+            description: "<b>Video Ad</b> effect base is increased by 0.1.",
+            cost() {
+                return new Decimal(5e22) // GFRIEND disbandment 2021.5.22
+            },
+            unlocked() {
+                return hasUpgrade('money', 33)
+            },
+        },
+        35: {
+            title: "Re-debut GFRIEND",
+            description: "Unlock a new layer.<br>Requires 27 levels of <b>Investment</b>.",
+            cost() {
+                return new Decimal(1e30)
+            },
+            canAfford() {
+                return getBuyableAmount('money', 13).gte(27)
+            },
+            unlocked() {
+                return hasUpgrade('money', 34)
+            },
         },
     },
-	milestones: {
-        0: {
-            requirementDescription: "100,000 Hydrogen",
-            effectDescription: "Reduce Matter requirement for Hydrogen reset to 0.1.",
-            done() { return player["H"].best.gte(100000) }
+    buyables: {
+        11: {
+            title: "Banner Ad",
+            cost(x) {
+                return new Decimal(10000).times(new Decimal(1.55).pow(x.pow(1.05)))
+            },
+            display() {
+                if (hasUpgrade('money', 23)) return "<h3>Level:</h3> "+formatWhole(getBuyableAmount('money', 11))+"<br><h3>Effect:</h3> "+format(buyableEffect('money', 11))+"x Popularity and Money gain<br><h3>Cost:</h3> "+format(tmp.money.buyables[11].cost)+" Money"
+                return "<h3>Level:</h3> "+formatWhole(getBuyableAmount('money', 11))+"<br><h3>Effect:</h3> "+format(buyableEffect('money', 11))+"x Popularity gain<br><h3>Cost:</h3> "+format(tmp.money.buyables[11].cost)+" Money"
+            },
+            canAfford() {
+                return player[this.layer].points.gte(this.cost())
+            },
+            buy() {
+                if (this.canAfford)
+                {
+                    player[this.layer].points = player[this.layer].points.sub(this.cost)
+                    addBuyables(this.layer, this.id, 1)
+                }
+            },
+            effect(x) {
+                let n = new Decimal(1).add(x.times(0.5))
+                if (hasUpgrade('money', 25)) n = n.pow(1.25)
+                return n
+            },
+            unlocked() {
+                return hasUpgrade('money', 22)
+            },
         },
-		1: {
-            requirementDescription: "10,000,000 Hydrogen",
-            effectDescription: "'H-Matter Boost' softcap starts 100x later.",
-            done() { return player["H"].best.gte(1e7) }
+        12: {
+            title: "Video Ad",
+            cost(x) {
+                return new Decimal(160000).times(new Decimal(3.1).pow(x.pow(1.05)))
+            },
+            display() {
+                return "<h3>Level:</h3> "+formatWhole(getBuyableAmount('money', 12))+"<br><h3>Effect:</h3> "+format(buyableEffect('money', 12))+"x Popularity and Money gain<br><h3>Cost:</h3> "+format(tmp.money.buyables[12].cost)+" Money"
+            },
+            canAfford() {
+                return player[this.layer].points.gte(this.cost())
+            },
+            buy() {
+                if (this.canAfford)
+                {
+                    player[this.layer].points = player[this.layer].points.sub(this.cost)
+                    addBuyables(this.layer, this.id, 1)
+                }
+            },
+            effect(x) {
+                if (hasUpgrade('money', 34)) return new Decimal(1.3).pow(x)
+                return new Decimal(1.2).pow(x)
+            },
+            unlocked() {
+                return hasUpgrade('money', 24)
+            },
         },
-		2: {
-            requirementDescription: "1.00e13 Hydrogen",
-            effectDescription: "You permanently keep Hydrogen Milestones.",
-            done() { return player["H"].best.gte(1e13) }
-        },
-		3: {
-            requirementDescription: "1.00e25 Hydrogen",
-            effectDescription: "Gain 100% of your Hydrogen gain every second.",
-            done() { return player["H"].best.gte(1e25) }
-        },
-		4: {
-            requirementDescription: "1.00e45 Hydrogen",
-            effectDescription: "You permanently keep Hydrogen Upgrades.",
-            done() { return player["H"].best.gte(1e45) }
+        13: {
+            title: "Investment",
+            cost(x) {
+                return new Decimal(1e9).times(new Decimal(4.65).pow(x.pow(1.05)))
+            },
+            display() {
+                return "<h3>Level:</h3> "+formatWhole(getBuyableAmount('money', 13))+"<br><h3>Effect:</h3> "+format(buyableEffect('money', 13))+"x Money gain<br><h3>Cost:</h3> "+format(tmp.money.buyables[13].cost)+" Money"
+            },
+            canAfford() {
+                return player[this.layer].points.gte(this.cost())
+            },
+            buy() {
+                if (this.canAfford)
+                {
+                    player[this.layer].points = player[this.layer].points.sub(this.cost)
+                    addBuyables(this.layer, this.id, 1)
+                }
+            },
+            effect(x) {
+                let n = getBuyableAmount('money', 11).add(getBuyableAmount('money', 12))
+                let m = getBuyableAmount('money', 12)
+                if (!hasUpgrade('money', 32)) n = new Decimal(0)
+                if (!hasUpgrade('money', 33)) m = new Decimal(0)
+                return new Decimal(2).pow(x.pow(0.95)).times(new Decimal(1).add(n.times(0.1))).times(m.times(0.5).add(1))
+            },
+            unlocked() {
+                return hasUpgrade('money', 31)
+            },
         },
     },
-	milestonePopups: false,
-    layerShown(){return true},
-	passiveGeneration(){return hasMilestone("H", 3)},
-	doReset(resettingLayer) {
+    layerShown(){
+        return true
+    },
+    update(diff){
+        let gain = new Decimal(0)
+        if (hasUpgrade('money', 11)) gain = gain.add(upgradeEffect('money', 11))
+        if (hasUpgrade('money', 13)) gain = gain.times(upgradeEffect('money', 13))
+        if (hasUpgrade('money', 23)) gain = gain.times(buyableEffect('money', 11))
+        gain = gain.times(buyableEffect('money', 12))
+        gain = gain.times(buyableEffect('money', 13))
+        if (player.g.unlocked) gain = gain.times(tmp.g.effect)
+        if (hasUpgrade('g', 15)) gain = gain.times(upgradeEffect('g', 15))
+        player.money.points = player.money.points.add(gain.times(diff))
+    },
+    automate(diff){
+        if (hasMilestone('g', 2)){
+          if (hasUpgrade('money', 31)) tmp.money.buyables[13].buy()
+          if (hasUpgrade('money', 24)) tmp.money.buyables[12].buy()
+          if (hasUpgrade('money', 22)) tmp.money.buyables[11].buy()
+        }
+    },
+    doReset(resettingLayer) {
 		let keep = []
-		if (hasMilestone("H", 2)) keep.push("milestones")
-		if (hasMilestone("H", 4)) keep.push("upgrades")
-		if (layers[resettingLayer].row > this.row || layers[resettingLayer].position > this.position) layerDataReset("H", keep)
+		//if (layers[resettingLayer].id = '') layerDataReset("money", keep)
 	},
 })
-addLayer("He", {
-    name: "Helium", // This is optional, only used in a few places, If absent it just uses the layer id.
-    symbol: "He", // This appears on the layer's node. Default is the id with the first letter capitalized
+addLayer("g", {
+    name: "GFRIEND Songs", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "G", // This appears on the layer's node. Default is the id with the first letter capitalized
     position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
         unlocked: false,
 		points: new Decimal(0),
+        views: new Decimal(0),
+        subs: new Decimal(0),
     }},
-    color: "#00ffff", // Noble Gas
-    requires() {
-		let x = new Decimal(5e9)
-		if (hasMilestone("He", 0)) x = new Decimal(1e9)
-		return x
-	},
-	effect() {
-        if (!player["He"].unlocked) return new Decimal(1)
-        let x = new Decimal(1)
-		let power = new Decimal(2)
-        x = x.times(player["He"].total.add(1).add(hasUpgrade("He", 12)*upgradeEffect("He", 12)).pow(power))
-        return x
+    color: "#f1f0ec",
+    requires: new Decimal(1e30),
+    resource: "GFRIEND Songs", // Name of prestige currency
+    baseResource: "Money",
+    baseAmount() {
+        return player.money.points
     },
-    effectDescription() {
-		let desc = "which boosts Matter gain by <h2 style='color:" + this.color + "; text-shadow:" + this.color + " 0px 0px 10px'>" + format(this.effect()) + "x</h2> based on the total amount."
-        return desc
-    },
-	branches: ["H"],
-    resource: "Helium", // Name of prestige currency
-    baseResource: "Hydrogen", // Name of resource prestige is based on
-    baseAmount() {return player["H"].points}, // Get the current amount of baseResource
-    type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-    exponent: 0.35, // Prestige currency exponent
-    gainMult() { // Calculate the multiplier for main currency from bonuses
-        mult = new Decimal(1)
-		if (hasUpgrade("Li", 12)) mult = mult.times(upgradeEffect("Li", 12))
-        return mult
-    },
-    gainExp() { // Calculate the exponent on main currency from bonuses
-        return new Decimal(1)
-    },
+    resetDescription: "Reset Popularity to produce ",
+    exponent: new Decimal(2),
+    base: new Decimal(1000),
+    type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
     row: 1, // Row the layer is in on the tree (0 is the first row)
-	upgrades: {
-		11: {
-			name: "He-H",
-			title: "He-H Boost",
-			description: "Helium also boosts Hydrogen gain.",
-			effect() {
-				let power = new Decimal(0.75)
-				let x = player["He"].total.add(1).pow(power)
-				let sc = new Decimal(1e10)
-				if (x.gt(sc))
-				{
-					let y = x.div(sc)
-					y = y.pow(0.125)
-					x = y.times(sc)
-				}
-				return x
-			},
-			effectDisplay() {
-				let softcapped = false
-				let sc = new Decimal(1e10)
-				if (upgradeEffect(this.layer, this.id).gt(sc)) softcapped = true
-				if (softcapped) { return format(upgradeEffect(this.layer, this.id))+"x (softcapped)" }
-				return format(upgradeEffect(this.layer, this.id))+"x"
-			},
-			unlocked() { return true },
-			cost: new Decimal(3),
+    branches: ['money'],
+    tabFormat: {
+        "Main": {
+            content: [
+                "main-display",
+                "blank",
+                "prestige-button",
+                "blank",
+                ["display-text",
+                    function() { 
+                        return 'Money is reduced by the requirement when producing GFRIEND Songs.' 
+                    },
+                    { 
+                        "color": "#dfdfdf"
+                    }],
+                ["display-text",
+                    function() { 
+                        return 'You have ' + format(player.points) + ' Popularity' 
+                    },
+                    { 
+                        "color": "#dfdfdf"
+                    }],
+                ["display-text",
+                    function() { 
+                        return 'You have ' + format(player.money.points) + ' Money' 
+                    },
+                    { 
+                        "color": "#dfdfdf"
+                    }],
+                "blank",
+                "milestones",
+            ],
         },
-		12: {
-			name: "He Enhancement",
-			title: "He Enhancement",
-			description: "Helium boost works as if there are 9 more of them.",
-			effect() {
-				let x = new Decimal(9)
-				if (hasMilestone("He", 1)) x = x.add(17999991)
-				return x
-			},
-			effectDisplay() { return "+"+format(upgradeEffect(this.layer, this.id)) },
-			unlocked() { return hasUpgrade("He", 11) },
-			cost: new Decimal(10),
-        },
-		13: {
-			name: "Matter Boost",
-			title: "He-Matter Boost",
-			description: "Helium boosts Matter gain.",
-			effect() {
-				let x = new Decimal(10)
-				let power = new Decimal(0.1)
-				x = x.times(player["He"].total.add(1).pow(power))
-				return x
-			},
-			effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" },
-			unlocked() { return hasUpgrade("He", 12) },
-			cost: new Decimal(80),
-        },
-		14: {
-			name: "H Upgrade Boost",
-			title: "Power Boost",
-			description: "4th and 5th Hydrogen upgrades are stronger based on the number of Elements unlocked.",
-			effect() {
-				let x = new Decimal(1)
-				if (player["He"].unlocked) x = x.add(2)
-				if (player["Li"].unlocked) x = x.add(3)
-				return x
-			},
-			effectDisplay() { return "^"+format(upgradeEffect(this.layer, this.id)) },
-			unlocked() { return hasUpgrade("He", 13) },
-			cost: new Decimal(2000),
-        },
-    },
-	milestones: {
-        0: {
-            requirementDescription: "100,000 Helium",
-            effectDescription: "Divide Hydrogen requirement for Helium reset by 5.",
-            done() { return player["He"].best.gte(100000) }
-        },
-		1: {
-            requirementDescription: "30,000,000 Helium",
-            effectDescription: "'He Enhancement' is 2,000,000x as powerful.",
-            done() { return player["He"].best.gte(3e7) }
-        },
-		2: {
-            requirementDescription: "5.00e13 Helium",
-            effectDescription: "You permanently keep Helium Milestones.",
-            done() { return player["He"].best.gte(5e13) }
-        },
-		3: {
-            requirementDescription: "7.00e25 Helium",
-            effectDescription: "Gain 100% of your Helium gain every second.",
-            done() { return player["He"].best.gte(7e25) }
-        },
-		4: {
-            requirementDescription: "1.10e46 Helium",
-            effectDescription: "You permanently keep Helium Upgrades.",
-            done() { return player["He"].best.gte(1.1e46) }
+        "Streaming": {
+            content: [
+                "main-display",
+                "blank",
+                "prestige-button",
+                "blank",
+                ["display-text",
+                    function() { 
+                        return 'You have ' + format(player.points) + ' Popularity' 
+                    },
+                    { 
+                        "color": "#dfdfdf"
+                    }],
+                ["display-text",
+                    function() { 
+                        return 'You have ' + format(player.money.points) + ' Money' 
+                    },
+                    { 
+                        "color": "#dfdfdf"
+                    }],
+                "blank",
+                ["display-text",
+                    function() {
+                        if (player.g.views.gte(1000)) format(player.g.views, 2)
+                        return 'You have ' + format(player.g.views, 0) + ' Video Views' 
+                    },
+                    { 
+                        "color": "#dfdfdf"
+                    }],
+                ["display-text",
+                    function() {
+                        if (player.g.subs.gte(1000)) format(player.g.subs, 2)
+                        return 'You have ' + format(player.g.subs, 0) + ' Subscribers' 
+                    },
+                    { 
+                        "color": "#dfdfdf"
+                    }],
+                "blank",
+                "upgrades",
+            ],
+            unlocked() {
+                return hasMilestone('g', 0)
+            },
         },
     },
-	milestonePopups: false,
-    layerShown(){return player["H"].best.gte(1e9) || player["He"].unlocked},
-	passiveGeneration(){return hasMilestone("He", 3)},
-	doReset(resettingLayer) {
-		let keep = [];
-		if (hasMilestone("He", 2)) keep.push("milestones")
-		if (hasMilestone("He", 4)) keep.push("upgrades")
-		if (layers[resettingLayer].row > this.row || layers[resettingLayer].position > this.position) layerDataReset("He", keep)
-	},
-})
-addLayer("Li", {
-    name: "Lithium", // This is optional, only used in a few places, If absent it just uses the layer id.
-    symbol: "Li", // This appears on the layer's node. Default is the id with the first letter capitalized
-    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
-    startData() { return {
-        unlocked: false,
-		points: new Decimal(0),
-    }},
-    color: "#ff4040", // Alkali Metal
-    requires() {
-		let x = new Decimal(2e10)
-		if (hasMilestone("Li", 0)) x = new Decimal(5e9)
-		return x
-	},
-	effect() {
-        if (!player["Li"].unlocked) return new Decimal(1)
-        let x = new Decimal(1)
-		let power = new Decimal(6.3)
-        x = x.times(player["Li"].total.add(1).pow(power))
+    effect() {
+        let x = new Decimal(5).pow(player.g.points)
         return x
     },
     effectDescription() {
-		let desc = "which boosts Matter gain by <h2 style='color:" + this.color + "; text-shadow:" + this.color + " 0px 0px 10px'>" + format(this.effect()) + "x</h2> based on the total amount."
-        return desc
+        let text = ""
+        text = text + "boosting Popularity and Money gain by <h2 style='color:"
+        text = text + this.color
+        text = text + "; text-shadow:"
+        text = text + this.color
+        text = text + " 0px 0px 10px'>"
+        text = text + format(this.effect())
+        text = text + "x</h2>."
+        return text
     },
-	branches: ["He"],
-    resource: "Lithium", // Name of prestige currency
-    baseResource: "Helium", // Name of resource prestige is based on
-    baseAmount() {return player["He"].points}, // Get the current amount of baseResource
-    type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-    exponent: 0.2333, // Prestige currency exponent
-    gainMult() { // Calculate the multiplier for main currency from bonuses
-        mult = new Decimal(1)
-        return mult
-    },
-    gainExp() { // Calculate the exponent on main currency from bonuses
-        return new Decimal(1)
-    },
-    row: 2, // Row the layer is in on the tree (0 is the first row)
-	upgrades: {
-		11: {
-			name: "Li-H",
-			title: "Li-H Boost",
-			description: "Lithium also boosts Hydrogen gain.",
-			effect() {
-				let power = new Decimal(2)
-				let x = player["Li"].total.add(1).pow(power).times(1000)
-				let sc = new Decimal(1e40)
-				if (x.gt(sc))
-				{
-					let y = x.div(sc)
-					y = y.pow(0.125)
-					x = y.times(sc)
-				}
-				return x
-			},
-			effectDisplay() {
-				let softcapped = false
-				let sc = new Decimal(1e40)
-				if (upgradeEffect(this.layer, this.id).gt(sc)) softcapped = true
-				if (softcapped) { return format(upgradeEffect(this.layer, this.id))+"x (softcapped)" }
-				return format(upgradeEffect(this.layer, this.id))+"x"
-			},
-			unlocked() { return true },
-			cost: new Decimal(5),
-        },
-		12: {
-			name: "Li-He",
-			title: "Li-He Boost",
-			description: "Lithium also boosts Helium gain.",
-			effect() {
-				let power = new Decimal(0.75)
-				let x = player["Li"].total.add(1).pow(power)
-				let sc = new Decimal(1e10)
-				if (x.gt(sc))
-				{
-					let y = x.div(sc)
-					y = y.pow(0.125)
-					x = y.times(sc)
-				}
-				return x
-			},
-			effectDisplay() {
-				let softcapped = false
-				let sc = new Decimal(1e10)
-				if (upgradeEffect(this.layer, this.id).gt(sc)) softcapped = true
-				if (softcapped) { return format(upgradeEffect(this.layer, this.id))+"x (softcapped)" }
-				return format(upgradeEffect(this.layer, this.id))+"x"
-			},
-			unlocked() { return true },
-			cost: new Decimal(30),
-        },
-		13: {
-			name: "Li Matter Boost",
-			title: "Li-Matter Boost",
-			description: "Lithium boosts Matter gain.",
-			effect() {
-				let x = new Decimal(1000)
-				let power = new Decimal(0.3)
-				x = x.times(player["Li"].total.add(1).pow(power))
-				return x
-			},
-			effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" },
-			unlocked() { return hasUpgrade("Li", 12) },
-			cost: new Decimal(320),
-        },
-		14: {
-			name: "H Upgrade Boost 2",
-			title: "Power Boost II",
-			description: "4th and 5th Hydrogen upgrades are stronger based on Achievement Points.",
-			effect() {
-				let x = new Decimal(1)
-				let per = new Decimal(0.005)
-				if (hasMilestone("Li", 1)) per = per.times(1.2)
-				x = x.add(player["Ach"].points.times(per))
-				return x
-			},
-			effectDisplay() { return "^"+format(upgradeEffect(this.layer, this.id)) },
-			unlocked() { return hasUpgrade("Li", 13) },
-			cost: new Decimal(10000),
-        },
-    },
-	milestones: {
+    milestones: {
         0: {
-            requirementDescription: "100,000 Lithium",
-            effectDescription: "Divide Helium requirement for Lithium reset by 4.",
-            done() { return player["Li"].best.gte(100000) }
+            requirementDescription: "2 GFRIEND Songs",
+            effectDescription: "Unlock Streaming.",
+            done() {
+                return player.g.points.gte(2)
+            },
         },
-		1: {
-            requirementDescription: "90,000,000 Lithium",
-            effectDescription: "4th Lithium Upgrade is 1.2x more powerful.",
-            done() { return player["Li"].best.gte(9e7) }
+        1: {
+            requirementDescription: "3 GFRIEND Songs",
+            effectDescription: "5x Subscriber Gain.",
+            done() {
+                return player.g.points.gte(3)
+            },
         },
-		2: {
-            requirementDescription: "2.50e14 Lithium",
-            effectDescription: "You permanently keep Lithium Milestones.",
-            done() { return player["Li"].best.gte(2.5e13) }
-        },
-		3: {
-            requirementDescription: "4.90e26 Lithium",
-            effectDescription: "Gain 100% of your Lithium gain every second.",
-            done() { return player["Li"].best.gte(4.9e26) }
-        },
-		4: {
-            requirementDescription: "1.21e47 Lithium",
-            effectDescription: "You permanently keep Lithium Upgrades.",
-            done() { return player["Li"].best.gte(1.21e47) }
+        2: {
+            requirementDescription: "4 GFRIEND Songs",
+            effectDescription: "Autobuy Money buyables.",
+            done() {
+                return player.g.points.gte(4)
+            },
         },
     },
-	milestonePopups: false,
-    layerShown(){return player["He"].best.gte(4e9) || player["Li"].unlocked},
-	passiveGeneration(){return hasMilestone("Li", 3)},
-	doReset(resettingLayer) {
-		let keep = [];
-		if (hasMilestone("Li", 2)) keep.push("milestones")
-		if (hasMilestone("Li", 4)) keep.push("upgrades")
-		if (layers[resettingLayer].row > this.row || layers[resettingLayer].position > this.position) layerDataReset("Li", keep)
+    upgrades: { // Streaming
+        11: {
+            title: "Upload First Video",
+            description: "Earn Views based on GFRIEND Songs.",
+            cost() {
+                return new Decimal(1e37)
+            },
+            currencyDisplayName: "Money",
+            currencyInternalName: "points",
+            currencyLayer: "money",
+            effect() {
+                return new Decimal(3).pow(player.g.points)
+            },
+            effectDisplay() {
+                return formatWhole(upgradeEffect(this.layer, this.id))+"/s"
+            },
+            unlocked() {
+                return true
+            },
+        },
+        12: {
+            title: "Beg for Subscribes",
+            description: "Earn Subscribers based on Views growth rate.<br>Requires 100 Views.",
+            cost() {
+                return new Decimal(1e40)
+            },
+            currencyDisplayName: "Money",
+            currencyInternalName: "points",
+            currencyLayer: "money",
+            canAfford() {
+                return player.g.views.gte(100)
+            },
+            effect() {
+                let i = upgradeEffect('g', 11).times(0.01)
+                if (hasMilestone('g', 1)) i = i.times(5)
+                if (i.gt(1000))
+                {
+                    let j = i.div(1000)
+                    j = j.pow(0.5)
+                    i = j.times(1000)
+                }
+                return i
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"/s"
+            },
+            unlocked() {
+                return hasUpgrade('g', 11)
+            },
+        },
+        13: {
+            title: "Promotion",
+            description: "Subscribers boost Popularity gain.<br>Requires 20 Subscribers.",
+            cost() {
+                return new Decimal(1e43)
+            },
+            currencyDisplayName: "Money",
+            currencyInternalName: "points",
+            currencyLayer: "money",
+            canAfford() {
+                return player.g.subs.gte(20)
+            },
+            effect() {
+                let i = player.g.subs.round().add(1)
+                return i
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x"
+            },
+            unlocked() {
+                return hasUpgrade('g', 12)
+            },
+        },
+        14: {
+            title: "Streaming Power",
+            description: "GFRIEND Songs boost Popularity gain.<br>Requires 200 Subscribers.",
+            cost() {
+                return new Decimal(1e49)
+            },
+            currencyDisplayName: "Money",
+            currencyInternalName: "points",
+            currencyLayer: "money",
+            canAfford() {
+                return player.g.subs.gte(200)
+            },
+            effect() {
+                let i = new Decimal(3).pow(player.g.points)
+                return i
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x"
+            },
+            unlocked() {
+                return hasUpgrade('g', 13)
+            },
+        },
+        15: {
+            title: "Monetization",
+            description: "Views boost Money gain.<br>Requires 1,000 Subscribers and 24,000 Views.",
+            cost() {
+                return new Decimal(1e58)
+            },
+            currencyDisplayName: "Money",
+            currencyInternalName: "points",
+            currencyLayer: "money",
+            canAfford() {
+                return player.g.subs.gte(1000) && player.g.views.gte(24000)
+            },
+            effect() {
+                let i = player.g.views.pow(0.75).add(1)
+                return i
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x"
+            },
+            unlocked() {
+                return hasUpgrade('g', 14)
+            },
+        },
+    },
+    layerShown(){
+        return hasUpgrade('money', 35) || player.g.unlocked
+    },
+    onPrestige() {
+        player.money.points = player.money.points.sub(tmp.g.nextAt)
+    },
+    update(diff) {
+        if (hasUpgrade('g', 11)) player.g.views = player.g.views.add(upgradeEffect('g', 11).times(diff))
+        if (hasUpgrade('g', 12)) player.g.subs = player.g.subs.add(upgradeEffect('g', 12).times(diff))
+    },
+    doReset(resettingLayer) {
+		let keep = []
+		//if (layers[resettingLayer].id = '') layerDataReset("money", keep)
 	},
-})
-addLayer("Ach", {
-    name: "Achievement Points", // This is optional, only used in a few places, If absent it just uses the layer id.
-    symbol: "Ach", // This appears on the layer's node. Default is the id with the first letter capitalized
-    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
-    startData() { return {
-        unlocked: true,
-		points: new Decimal(0),
-    }},
-    color: "#ffcc00",
-    resource: "Achievement Points", // Name of prestige currency
-    row: "side", // Row the layer is in on the tree (0 is the first row)
-	tabFormat: {
-		"Achievements": {
-			content: [
-				"main-display",
-				["prestige-button"],
-				"achievements",
-				"blank"
-			],
-		},
-	},
-	achievements: {
-		11: {
-			name: "First Creation",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Create 1 Hydrogen. Reward: 2 AP."
-				return "Create 1 Hydrogen. Reward: 2 AP. Currently: "+player["H"].total+"/1"
-			},
-			done() { return player["H"].total.gte(1) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(2)},
-		},
-		12: {
-			name: "Quadratic Growth",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Buy 2 Hydrogen Upgrades. Reward: 2 AP."
-				if (hasUpgrade("H", 11)) return "Buy 2 Hydrogen Upgrades. Reward: 2 AP. Currently: 1/2"
-				return "Buy 2 Hydrogen Upgrades. Reward: 2 AP. Currently: 0/2"
-			},
-			done() { return hasUpgrade("H", 12) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(2)},
-		},
-		13: {
-			name: "Self Boost",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Buy 3 Hydrogen Upgrades. Reward: 2 AP."
-				if (hasUpgrade("H", 12)) return "Buy 3 Hydrogen Upgrades. Reward: 2 AP. Currently: 2/3"
-				if (hasUpgrade("H", 11)) return "Buy 3 Hydrogen Upgrades. Reward: 2 AP. Currently: 1/3"
-				return "Buy 3 Hydrogen Upgrades. Reward: 2 AP. Currently: 0/3"
-			},
-			done() { return hasUpgrade("H", 13) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(2)},
-		},
-		14: {
-			name: "Five Hundred is A Lot",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Buy 4 Hydrogen Upgrades. Reward: 2 AP."
-				if (hasUpgrade("H", 13)) return "Buy 4 Hydrogen Upgrades. Reward: 2 AP. Currently: 3/4"
-				if (hasUpgrade("H", 12)) return "Buy 4 Hydrogen Upgrades. Reward: 2 AP. Currently: 2/4"
-				if (hasUpgrade("H", 11)) return "Buy 4 Hydrogen Upgrades. Reward: 2 AP. Currently: 1/4"
-				return "Buy 4 Hydrogen Upgrades. Reward: 2 AP. Currently: 0/4"
-			},
-			done() { return hasUpgrade("H", 14) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(2)},
-		},
-		15: {
-			name: "We Couldn't Afford 6",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Buy 5 Hydrogen Upgrades. Reward: 2 AP."
-				if (hasUpgrade("H", 14)) return "Buy 5 Hydrogen Upgrades. Reward: 2 AP. Currently: 4/5"
-				if (hasUpgrade("H", 13)) return "Buy 5 Hydrogen Upgrades. Reward: 2 AP. Currently: 3/5"
-				if (hasUpgrade("H", 12)) return "Buy 5 Hydrogen Upgrades. Reward: 2 AP. Currently: 2/5"
-				if (hasUpgrade("H", 11)) return "Buy 5 Hydrogen Upgrades. Reward: 2 AP. Currently: 1/5"
-				return "Buy 5 Hydrogen Upgrades. Reward: 2 AP. Currently: 0/5"
-			},
-			done() { return hasUpgrade("H", 15) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(2)},
-		},
-		16: {
-			name: "This Isn't Matter Dimensions",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Generate 5,000 Matter. Reward: 2 AP."
-				return "Generate 5,000 Matter. Reward: 2 AP. Currently: "+format(player.points)+"/5,000"
-			},
-			done() { return player.points.gte(5000) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(2)},
-		},
-		17: {
-			name: "H10000",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Create 10,000 Hydrogen. Reward: 2 AP."
-				return "Create 10,000 Hydrogen. Reward: 2 AP. Currently: "+format(player["H"].total)+"/10,000"
-			},
-			done() { return player["H"].total.gte(10000) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(2)},
-		},
-		21: {
-			name: "1,609 Meters",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Get the first Hydrogen Milestone. Reward: 3 AP."
-				return "Get the first Hydrogen Milestone. Reward: 3 AP. Currently: 0/1"
-			},
-			done() { return hasMilestone("H", 0) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(3)},
-		},
-		22: {
-			name: "Hydrogen Millionaire",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Create 1,000,000 Hydrogen. Reward: 3 AP."
-				return "Create 1,000,000 Hydrogen. Reward: 3 AP. Currently: "+format(player["H"].total)+"/1,000,000"
-			},
-			done() { return player["H"].total.gte(1e6) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(3)},
-		},
-		23: {
-			name: "3,218 Meters",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Get the second Hydrogen Milestone. Reward: 3 AP."
-				if (hasMilestone("H", 0)) return "Get the second Hydrogen Milestone. Reward: 3 AP. Currently: 1/2"
-				return "Get the second Hydrogen Milestone. Reward: 3 AP. Currently: 0/2"
-			},
-			done() { return hasMilestone("H", 1) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(3)},
-		},
-		24: {
-			name: "I Told You, This Isn't Matter Dimensions",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Generate 10,000,000 Matter. Reward: 3 AP."
-				return "Generate 10,000,000 Matter. Reward: 3 AP. Currently: "+format(player.points)+"/10,000,000"
-			},
-			done() { return player.points.gte(1e7) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(3)},
-		},
-		25: {
-			name: "Hydrogen Billionaire",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Create 1.00e9 Hydrogen. Reward: 3 AP."
-				return "Create 1.00e9 Hydrogen. Reward: 3 AP. Currently: "+format(player["H"].total)+"/1.00e9"
-			},
-			done() { return player["H"].total.gte(1e9) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(3)},
-		},
-		26: {
-			name: "Next Level",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Create 5.00e9 Hydrogen to unlock the next layer. Reward: 3 AP."
-				return "Create 5.00e9 Hydrogen to unlock the next layer. Reward: 3 AP. Currently: "+format(player["H"].total)+"/5.00e9"
-			},
-			done() { return player["H"].total.gte(5e9) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(3)},
-		},
-		27: {
-			name: "1s²",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Unlock Helium. Reward: 3 AP."
-				return "Unlock Helium. Reward: 3 AP. Currently: "+player["He"].total+"/1"
-			},
-			done() { return player["He"].total.gte(1) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(3)},
-		},
-		31: {
-			name: "Do I Have to Do That Again?!",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Create 2 Helium. Reward: 4 AP."
-				return "Create 2 Helium. Reward: 4 AP. Currently: "+player["He"].total+"/2"
-			},
-			done() { return player["He"].total.gte(2) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(4)},
-		},
-		32: {
-			name: "Hydrogen Production is OP Now",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Buy a Helium Upgrade. Reward: 4 AP."
-				return "Buy a Helium Upgrade. Reward: 4 AP. Currently: 0/1"
-			},
-			done() { return hasUpgrade("He", 11) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(4)},
-		},
-		33: {
-			name: "Helium is Still Not So OP",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Buy 2 Helium Upgrades. Reward: 4 AP."
-				if (hasUpgrade("He", 11)) return "Buy 2 Helium Upgrades. Reward: 4 AP. Currently: 1/2"
-				return "Buy 2 Helium Upgrades. Reward: 4 AP. Currently: 0/2"
-			},
-			done() { return hasUpgrade("He", 12) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(4)},
-		},
-		34: {
-			name: "One Hundred is A Lot",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Create 100 Helium. Reward: 4 AP."
-				return "Create 100 Helium. Reward: 4 AP. Currently: "+player["He"].total+"/100"
-			},
-			done() { return player["He"].total.gte(100) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(4)},
-		},
-		35: {
-			name: "Collection",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Buy all Helium Upgrades. Reward: 4 AP."
-				if (hasUpgrade("He", 13)) return "Buy all Helium Upgrades. Reward: 4 AP. Currently: 3/4"
-				if (hasUpgrade("He", 12)) return "Buy all Helium Upgrades. Reward: 4 AP. Currently: 2/4"
-				if (hasUpgrade("He", 11)) return "Buy all Helium Upgrades. Reward: 4 AP. Currently: 1/4"
-				return "Buy all Helium Upgrades. Reward: 4 AP. Currently: 0/4"
-			},
-			done() { return hasUpgrade("He", 14) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(4)},
-		},
-		36: {
-			name: "4,828 Meters",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Get the third Hydrogen Milestone. Reward: 4 AP."
-				if (hasMilestone("H", 1)) return "Get the second Hydrogen Milestone. Reward: 4 AP. Currently: 2/3"
-				if (hasMilestone("H", 0)) return "Get the second Hydrogen Milestone. Reward: 4 AP. Currently: 1/3"
-				return "Get the third Hydrogen Milestone. Reward: 4 AP. Currently: 0/3"
-			},
-			done() { return hasMilestone("H", 2) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(4)},
-		},
-		37: {
-			name: "1,609 Meters Again",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Get the first Helium Milestone. Reward: 4 AP."
-				return "Get the first Helium Milestone. Reward: 4 AP. Currently: 0/1"
-			},
-			done() { return hasMilestone("He", 0) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(4)},
-		},
-		41: {
-			name: "Helium Millionaire",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Create 1,000,000 Helium. Reward: 5 AP."
-				return "Create 1,000,000 Helium. Reward: 5 AP. Currently: "+format(player["He"].total)+"/1,000,000"
-			},
-			done() { return player["He"].total.gte(1e6) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(5)},
-		},
-		42: {
-			name: "This Won't be Matter Dimensions",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Generate 1.00e28 Matter. Reward: 5 AP."
-				return "Generate 1.00e28 Matter. Reward: 5 AP. Currently: "+format(player.points)+"/1.00e28"
-			},
-			done() { return player.points.gte(1e28) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(5)},
-		},
-		43: {
-			name: "3,218 Meters Again",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Get the second Helium Milestone. Reward: 5 AP."
-				if (hasMilestone("He", 0)) return "Get the second Helium Milestone. Reward: 5 AP. Currently: 1/2"
-				return "Get the second Helium Milestone. Reward: 5 AP. Currently: 0/2"
-			},
-			done() { return hasMilestone("He", 1) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(5)},
-		},
-		44: {
-			name: "Floating Hydrogen",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Create 3.40e38 Hydrogen. Reward: 5 AP."
-				return "Create 3.40e38 Hydrogen. Reward: 5 AP. Currently: "+format(player["H"].total)+"/3.40e38"
-			},
-			done() { return player["H"].total.gte(3.4028e38) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(5)},
-		},
-		45: {
-			name: "Helium Billionaire",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Create 1.00e9 Helium. Reward: 5 AP."
-				return "Create 1.00e9 Helium. Reward: 5 AP. Currently: "+format(player["He"].total)+"/1.00e9"
-			},
-			done() { return player["He"].total.gte(1e9) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(5)},
-		},
-		46: {
-			name: "8,046 Meters",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Get all Hydrogen Milestones. Reward: 5 AP."
-				if (hasMilestone("H", 3)) return "Get all Hydrogen Milestones. Reward: 5 AP. Currently: 4/5"
-				if (hasMilestone("H", 2)) return "Get all Hydrogen Milestones. Reward: 5 AP. Currently: 3/5"
-				if (hasMilestone("H", 1)) return "Get all Hydrogen Milestones. Reward: 5 AP. Currently: 2/5"
-				if (hasMilestone("H", 0)) return "Get all Hydrogen Milestones. Reward: 5 AP. Currently: 1/5"
-				return "Get all Hydrogen Milestones. Reward: 5 AP. Currently: 0/5"
-			},
-			done() { return hasMilestone("H", 4) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(5)},
-		},
-		47: {
-			name: "1s²2s",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Unlock Lithium. Reward: 5 AP."
-				return "Unlock Lithium. Reward: 5 AP. Currently: "+player["Li"].total+"/1"
-			},
-			done() { return player["Li"].total.gte(1) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(5)},
-		},
-		51: {
-			name: "3x3=9",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Create 3 Lithium. Reward: 6 AP."
-				return "Create 3 Lithium. Reward: 6 AP. Currently: "+player["Li"].total+"/3"
-			},
-			done() { return player["Li"].total.gte(3) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(6)},
-		},
-		52: {
-			name: "It's Hydrogen Again?",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Buy a Lithium Upgrade. Reward: 6 AP."
-				return "Buy a Lithium Upgrade. Reward: 6 AP. Currently: 0/1"
-			},
-			done() { return hasUpgrade("Li", 11) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(6)},
-		},
-		53: {
-			name: "It's Helium Again?",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Buy 2 Lithium Upgrades. Reward: 6 AP."
-				if (hasUpgrade("Li", 11)) return "Buy 2 Lithium Upgrades. Reward: 6 AP. Currently: 1/2"
-				return "Buy 2 Lithium Upgrades. Reward: 6 AP. Currently: 0/2"
-			},
-			done() { return hasUpgrade("Li", 12) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(6)},
-		},
-		54: {
-			name: "Long Helium",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Create 1.84e19 Helium. Reward: 6 AP."
-				return "Create 1.84e19 Helium. Reward: 6 AP. Currently: "+format(player["He"].total)+"/1.84e19"
-			},
-			done() { return player["He"].total.gte(1.8447e19) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(6)},
-		},
-		55: {
-			name: "Assortment",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Buy all Lithium Upgrades. Reward: 6 AP."
-				if (hasUpgrade("Li", 13)) return "Buy all Lithium Upgrades. Reward: 6 AP. Currently: 3/4"
-				if (hasUpgrade("Li", 12)) return "Buy all Lithium Upgrades. Reward: 6 AP. Currently: 2/4"
-				if (hasUpgrade("Li", 11)) return "Buy all Lithium Upgrades. Reward: 6 AP. Currently: 1/4"
-				return "Buy all Lithium Upgrades. Reward: 6 AP. Currently: 0/4"
-			},
-			done() { return hasUpgrade("Li", 14) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(6)},
-		},
-		56: {
-			name: "1,609 Meters x 3",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Get the first Lithium Milestone. Reward: 6 AP."
-				return "Get the first Lithium Milestone. Reward: 6 AP. Currently: 0/1"
-			},
-			done() { return hasMilestone("Li", 0) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(6)},
-		},
-		57: {
-			name: "Just Stop the Meters Thing!",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Get the second Lithium Milestone. Reward: 6 AP."
-				if (hasMilestone("Li", 0)) return "Get the second Lithium Milestone. Reward: 6 AP. Currently: 1/2"
-				return "Get the second Lithium Milestone. Reward: 6 AP. Currently: 0/2"
-			},
-			done() { return hasMilestone("Li", 1) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(6)},
-		},
-		61: {
-			name: "Soon",
-			tooltip() {
-				if (hasAchievement(this.layer, this.id)) return "Coming Soon"
-				return "Coming Soon"
-			},
-			done() { return player["Li"].total.gte(1e19951207) },
-			onComplete() {player["Ach"].points = player["Ach"].points.add(6)},
-		},
-	},
-    layerShown(){return true},
 })

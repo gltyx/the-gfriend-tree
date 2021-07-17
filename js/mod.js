@@ -1,8 +1,8 @@
 let modInfo = {
-	name: "The Element Tree",
-	id: "element",
+	name: "The GFRIEND Tree",
+	id: "gfriendforever",
 	author: "sleepground123",
-	pointsName: "Matter",
+	pointsName: "Popularity",
 	modFiles: ["layers.js", "tree.js"],
 
 	discordName: "",
@@ -13,25 +13,14 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0.6",
-	name: "Title Update",
+	num: "0.20",
+	name: "Literally nothing",
 }
 
-let changelog = `<h1>Changelog:</h1><br>
-	<h3>v0.0.6 - UI Update</h3><br>
-		- Upgrade titles are shown.<br>
-	<h3>v0.0.5 - Lithium Update</h3><br>
-		- Added Lithium.<br>
-		- Added 7 new Achievements. (total 35)<br>
-	<h3>v0.0.4 - Anti-Inflation Update</h3><br>
-		- Significantly nerfed 2nd Helium Upgrade.<br>
-		- 1st Helium Upgrade's softcap is lower, but the effect reaches the softcap faster.<br>
-	<h3>v0.0.3 - Achievement Update</h3><br>
-		- Added 28 Achievements.<br>
-	<h3>v0.0.2 - Helium Update</h3><br>
-		- Added Helium.<br>
-	<h3>v0.0.1 - Hydrogen Update</h3><br>
-		- Added Hydrogen.<br>`
+let changelog = `<h1>Changelog:</h1><br><br>
+	<h2>v0.2x - Classic Era</h2><br>
+	<h3>v0.20 - Initial Release</h3><br>
+		- Added contents up to Re-debut and Streaming.<br>`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
 
@@ -45,21 +34,23 @@ function getStartPoints(){
 
 // Determines if it should show points/sec
 function canGenPoints(){
-	return true
+	return hasUpgrade('money', 12)
 }
 
 // Calculate points/sec!
 function getPointGen() {
 	if(!canGenPoints())
 		return new Decimal(0)
-	let gain = new Decimal(0)
-	if (hasUpgrade("H", 11)) gain = gain.add(0.1)
-	if (hasUpgrade("H", 12)) gain = gain.times(upgradeEffect("H", 12))
-	if (hasUpgrade("H", 14)) gain = gain.times(upgradeEffect("H", 14))
-	if (player["He"].unlocked) gain = gain.times(tmp["He"].effect)
-	if (hasUpgrade("He", 13)) gain = gain.times(upgradeEffect("He", 13))
-	if (player["Li"].unlocked) gain = gain.times(tmp["Li"].effect)
-	if (hasUpgrade("Li", 13)) gain = gain.times(upgradeEffect("Li", 13))
+
+	let gain = new Decimal(0.05)
+	if (hasUpgrade('money', 14)) gain = gain.times(upgradeEffect('money', 14))
+	if (hasUpgrade('money', 15)) gain = gain.times(upgradeEffect('money', 15))
+	if (hasUpgrade('money', 21) && gain.gt(1)) gain = gain.pow(upgradeEffect('money', 21))
+	gain = gain.times(buyableEffect('money', 11))
+	gain = gain.times(buyableEffect('money', 12))
+	if (player.g.unlocked) gain = gain.times(tmp.g.effect)
+	if (hasUpgrade('g', 13)) gain = gain.times(upgradeEffect('g', 13))
+	if (hasUpgrade('g', 14)) gain = gain.times(upgradeEffect('g', 14))
 	return gain
 }
 
@@ -71,22 +62,23 @@ function addedPlayerData() { return {
 var displayThings = [
 ]
 
-var backgroundStyle = {
-
-}
-
 // Determines when the game "ends"
 function isEndgame() {
-	return player.points.gte(new Decimal("e19951207"))
+	return player.points.gte(new Decimal("1.79e308"))
 }
 
 
 
 // Less important things beyond this point!
 
+// Style for the background, can be a function
+var backgroundStyle = {
+
+}
+
 // You can change this if you have things that can be messed up by long tick lengths
 function maxTickLength() {
-	return(300) // Default is 1 hour which is just arbitrarily large
+	return(600) // Default is 1 hour which is just arbitrarily large
 }
 
 // Use this if you need to undo inflation from an older version. If the version is older than the version that fixed the issue,
