@@ -42,7 +42,6 @@ function canGenPoints(){
 function getPointGen() {
 	if(!canGenPoints())
 		return new Decimal(0)
-
 	let gain = new Decimal(0.05)
 	if (hasUpgrade('money', 14)) gain = gain.times(upgradeEffect('money', 14))
 	if (hasUpgrade('money', 15)) gain = gain.times(upgradeEffect('money', 15))
