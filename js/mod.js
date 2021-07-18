@@ -20,7 +20,8 @@ let VERSION = {
 let changelog = `<h1>Changelog:</h1><br><br>
 	<h2>v0.2x - Classic Era</h2><br>
 	<h3>v0.20 - Initial Release</h3><br>
-		- Added contents up to Re-debut and Streaming.<br>`
+		- Added contents up to Re-debut and Streaming.<br>
+		- Endgame is at 1e100 Money.<br>`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
 
@@ -60,11 +61,12 @@ function addedPlayerData() { return {
 
 // Display extra things at the top of the page
 var displayThings = [
+	"Current Endgame: 1e100 Money"
 ]
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.points.gte(new Decimal("1.79e308"))
+	return player.money.points.gte(new Decimal("1e100"))
 }
 
 

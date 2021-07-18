@@ -5,6 +5,8 @@ addLayer("money", {
     startData() { return {
         unlocked: true,
 		points: new Decimal(1),
+        ps: new Decimal(0),
+        auto: false,
     }},
     color: "#5fad70",
     resource: "Money", // Name of prestige currency
@@ -12,6 +14,14 @@ addLayer("money", {
     row: 0, // Row the layer is in on the tree (0 is the first row)
     tabFormat: [
         ["main-display", 2],
+        "blank",
+        ["display-text",
+        function() { 
+            return 'You are earning ' + format(player.money.ps) + ' Money per second' 
+        },
+        { 
+            "color": "#dfdfdf"
+        }],
         "blank",
         ["display-text",
             function() { 
@@ -232,14 +242,16 @@ addLayer("money", {
             buy() {
                 if (this.canAfford)
                 {
-                    player[this.layer].points = player[this.layer].points.sub(this.cost())
+                    player[this.layer].points = player[this.layer].points.sub(tmp[this.layer].buyables[this.id].cost)
                     addBuyables(this.layer, this.id, 1)
                 }
             },
             effect(x) {
                 let n = new Decimal(1).add(x.times(0.5))
-                if (hasUpgrade('money', 25)) n = n.pow(1.25)
-                return n
+                let exp = new Decimal(1)
+                if (hasUpgrade('money', 25)) exp = new Decimal(1.25)
+                if (hasUpgrade('g', 21)) exp = exp.add(upgradeEffect('g', 21))
+                return n.pow(exp)
             },
             unlocked() {
                 return hasUpgrade('money', 22)
@@ -259,13 +271,15 @@ addLayer("money", {
             buy() {
                 if (this.canAfford)
                 {
-                    player[this.layer].points = player[this.layer].points.sub(this.cost())
+                    player[this.layer].points = player[this.layer].points.sub(tmp[this.layer].buyables[this.id].cost)
                     addBuyables(this.layer, this.id, 1)
                 }
             },
             effect(x) {
-                if (hasUpgrade('money', 34)) return new Decimal(1.3).pow(x)
-                return new Decimal(1.2).pow(x)
+                let base = new Decimal(1.2)
+                if (hasUpgrade('money', 34)) base = base.add(0.1)
+                if (hasUpgrade('g', 22)) base = base.add(upgradeEffect('g', 22))
+                return base.pow(x)
             },
             unlocked() {
                 return hasUpgrade('money', 24)
@@ -285,7 +299,7 @@ addLayer("money", {
             buy() {
                 if (this.canAfford)
                 {
-                    player[this.layer].points = player[this.layer].points.sub(this.cost())
+                    player[this.layer].points = player[this.layer].points.sub(tmp[this.layer].buyables[this.id].cost)
                     addBuyables(this.layer, this.id, 1)
                 }
             },
@@ -313,10 +327,11 @@ addLayer("money", {
         gain = gain.times(buyableEffect('money', 13))
         if (player.g.unlocked) gain = gain.times(tmp.g.effect)
         if (hasUpgrade('g', 15)) gain = gain.times(upgradeEffect('g', 15))
+        player.money.ps = gain
         player.money.points = player.money.points.add(gain.times(diff))
     },
     automate(diff){
-        if (hasMilestone('g', 2)){
+        if (hasMilestone('g', 2) && player.money.auto){
           if (hasUpgrade('money', 31)) tmp.money.buyables[13].buy()
           if (hasUpgrade('money', 24)) tmp.money.buyables[12].buy()
           if (hasUpgrade('money', 22)) tmp.money.buyables[11].buy()
@@ -452,7 +467,7 @@ addLayer("g", {
         },
         1: {
             requirementDescription: "3 GFRIEND Songs",
-            effectDescription: "5x Subscriber Gain.",
+            effectDescription: "10x Subscriber Gain.",
             done() {
                 return player.g.points.gte(3)
             },
@@ -463,6 +478,7 @@ addLayer("g", {
             done() {
                 return player.g.points.gte(4)
             },
+            toggles: [['money', 'auto']],
         },
     },
     upgrades: { // Streaming
@@ -486,10 +502,10 @@ addLayer("g", {
             },
         },
         12: {
-            title: "Beg for Subscribes",
+            title: "Subscription",
             description: "Earn Subscribers based on Views growth rate.<br>Requires 100 Views.",
             cost() {
-                return new Decimal(1e40)
+                return new Decimal(1e39)
             },
             currencyDisplayName: "Money",
             currencyInternalName: "points",
@@ -498,8 +514,8 @@ addLayer("g", {
                 return player.g.views.gte(100)
             },
             effect() {
-                let i = upgradeEffect('g', 11).times(0.01)
-                if (hasMilestone('g', 1)) i = i.times(5)
+                let i = upgradeEffect('g', 11).times(0.005)
+                if (hasMilestone('g', 1)) i = i.times(10)
                 if (i.gt(1000))
                 {
                     let j = i.div(1000)
@@ -517,7 +533,7 @@ addLayer("g", {
         },
         13: {
             title: "Promotion",
-            description: "Subscribers boost Popularity gain.<br>Requires 20 Subscribers.",
+            description: "Subscribers boost Popularity gain.<br>Requires 50 Subscribers.",
             cost() {
                 return new Decimal(1e43)
             },
@@ -525,7 +541,7 @@ addLayer("g", {
             currencyInternalName: "points",
             currencyLayer: "money",
             canAfford() {
-                return player.g.subs.gte(20)
+                return player.g.subs.gte(50)
             },
             effect() {
                 let i = player.g.subs.round().add(1)
@@ -540,7 +556,7 @@ addLayer("g", {
         },
         14: {
             title: "Streaming Power",
-            description: "GFRIEND Songs boost Popularity gain.<br>Requires 200 Subscribers.",
+            description: "GFRIEND Songs boost Popularity gain.<br>Requires 250 Subscribers.",
             cost() {
                 return new Decimal(1e49)
             },
@@ -548,7 +564,7 @@ addLayer("g", {
             currencyInternalName: "points",
             currencyLayer: "money",
             canAfford() {
-                return player.g.subs.gte(200)
+                return player.g.subs.gte(250)
             },
             effect() {
                 let i = new Decimal(3).pow(player.g.points)
@@ -565,7 +581,7 @@ addLayer("g", {
             title: "Monetization",
             description: "Views boost Money gain.<br>Requires 1,000 Subscribers and 24,000 Views.",
             cost() {
-                return new Decimal(1e58)
+                return new Decimal(1e57)
             },
             currencyDisplayName: "Money",
             currencyInternalName: "points",
@@ -582,6 +598,46 @@ addLayer("g", {
             },
             unlocked() {
                 return hasUpgrade('g', 14)
+            },
+        },
+        21: {
+            title: "Banner Ad Enhancement",
+            description: "<b>Banner Ad</b> effect exponent is raised by 0.05 for every Streaming upgrade bought.",
+            cost() {
+                return new Decimal(1e69) // nice
+            },
+            currencyDisplayName: "Money",
+            currencyInternalName: "points",
+            currencyLayer: "money",
+            effect() {
+                let i = new Decimal(player.g.upgrades.length).times(0.05)
+                return i
+            },
+            effectDisplay() {
+                return "+"+format(upgradeEffect(this.layer, this.id))+" to exponent"
+            },
+            unlocked() {
+                return hasUpgrade('g', 15)
+            },
+        },
+        22: {
+            title: "Video Ad Enhancement",
+            description: "<b>Video Ad</b> effect base is raised by 0.01 for every Streaming upgrade bought.",
+            cost() {
+                return new Decimal(1e83)
+            },
+            currencyDisplayName: "Money",
+            currencyInternalName: "points",
+            currencyLayer: "money",
+            effect() {
+                let i = new Decimal(player.g.upgrades.length).times(0.01)
+                return i
+            },
+            effectDisplay() {
+                return "+"+format(upgradeEffect(this.layer, this.id))+" to base"
+            },
+            unlocked() {
+                return hasUpgrade('g', 21)
             },
         },
     },
