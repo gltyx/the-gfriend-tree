@@ -58,9 +58,27 @@ function getPointGen() {
 function addedPlayerData() { return {
 }}
 
+// GFRIEND Disbandment Clock
+const zeroTime = 1621609200000 // 2021/05/22 00:00:00
+const perDay = 86400000 // milliseconds per day
+
+// Calculate the # of days since disbandment
+function calculateDay() {
+	let time = Date.now()
+	time = time - zeroTime
+	time = Math.floor(time / perDay)
+	return time
+}
+
+function formatDay() {
+	let time = calculateDay()
+	return "GFRIEND Disbandment D+"+time
+}
+
 // Display extra things at the top of the page
 var displayThings = [
-	"Current Endgame: 1e100 Money"
+	formatDay(),
+	"Current Endgame: 1e100 Money",
 ]
 
 // Determines when the game "ends"
@@ -79,7 +97,7 @@ var backgroundStyle = {
 
 // You can change this if you have things that can be messed up by long tick lengths
 function maxTickLength() {
-	return(600) // Default is 1 hour which is just arbitrarily large
+	return(6969)
 }
 
 // Use this if you need to undo inflation from an older version. If the version is older than the version that fixed the issue,
