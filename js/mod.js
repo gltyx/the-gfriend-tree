@@ -19,7 +19,7 @@ let VERSION = {
 
 let changelog = `<h1>Changelog:</h1><br><br>
 	<h2>v0.2x - Classic Era</h2><br>
-	<h3>v0.20 - Initial Release</h3><br>
+	<h3>v0.20 - Initial Release</h3> (2021/07/21 +60)<br>
 		- Added contents up to Re-debut and Streaming.<br>
 		- Endgame is at 1e100 Money.<br>`
 
