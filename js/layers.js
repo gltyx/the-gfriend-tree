@@ -716,7 +716,7 @@ addLayer("story", {
         one: {
             title: "GFRIEND Disbandment",
             body() {
-                let text = "On May 22, 2021, GFRIEND, South Korea's 6-member K-POP girl group from Source Music, disbanded after 2,319 days of activity. GFRIEND has been a nation-wide sensation since 2015, and has become a very popular group by successes of 14 albums, such as Flower Bud, Snowflake, LOL, Time for the moon night, and many more. Recent disbandment of GFRIEND has put many K-POP fans in Korea and other countries in a massive shock."
+                let text = "On May 22, 2021, GFRIEND, South Korea's 6-member K-POP girl group from Source Music, disbanded after 2,319 days of activity. GFRIEND has been a nation-wide sensation since 2015, and has become a very popular group by successes of 14 albums, such as Flower Bud, Snowflake, LOL, Time for the moon night, and many more. Recent disbandment of GFRIEND has put many K-POP fans in Korea and other countries in a massive panic."
                 return text
             },
             unlocked() {
