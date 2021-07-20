@@ -19,8 +19,9 @@ let VERSION = {
 
 let changelog = `<h1>Changelog:</h1><br><br>
 	<h2>v0.2x - Classic Era</h2><br>
-	<h3>v0.20 - Initial Release</h3> (2021/07/21 +60)<br>
+	<h3>v0.20 - Initial Release</h3> (21/07/21 +60)<br>
 		- Added contents up to Re-debut and Streaming.<br>
+		- Added story lines.<br>
 		- Endgame is at 1e100 Money.<br>`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
@@ -40,8 +41,7 @@ function canGenPoints(){
 
 // Calculate points/sec!
 function getPointGen() {
-	if(!canGenPoints())
-		return new Decimal(0)
+	if(!canGenPoints()) return new Decimal(0)
 	let gain = new Decimal(0.05)
 	if (hasUpgrade('money', 14)) gain = gain.times(upgradeEffect('money', 14))
 	if (hasUpgrade('money', 15)) gain = gain.times(upgradeEffect('money', 15))
@@ -97,7 +97,7 @@ var backgroundStyle = {
 
 // You can change this if you have things that can be messed up by long tick lengths
 function maxTickLength() {
-	return(6969)
+	return(6666)
 }
 
 // Use this if you need to undo inflation from an older version. If the version is older than the version that fixed the issue,
