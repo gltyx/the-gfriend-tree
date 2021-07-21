@@ -7,6 +7,8 @@ addLayer("money", {
 		points: new Decimal(1),
         ps: new Decimal(0),
         auto: false,
+        auto1: false,
+        auto2: false,
     }},
     color: "#5fad70",
     resource: "Money", // Name of prestige currency
@@ -331,10 +333,10 @@ addLayer("money", {
         player.money.points = player.money.points.add(gain.times(diff))
     },
     automate(diff){
-        if (hasMilestone('g', 2) && player.money.auto){
-          if (hasUpgrade('money', 31)) tmp.money.buyables[13].buy()
-          if (hasUpgrade('money', 24)) tmp.money.buyables[12].buy()
-          if (hasUpgrade('money', 22)) tmp.money.buyables[11].buy()
+        if (hasMilestone('g', 2)){
+          if (hasUpgrade('money', 31) && player.money.auto2) tmp.money.buyables[13].buy()
+          if (hasUpgrade('money', 24) && player.money.auto1) tmp.money.buyables[12].buy()
+          if (hasUpgrade('money', 22) && player.money.auto) tmp.money.buyables[11].buy()
         }
     },
     doReset(resettingLayer) {
@@ -478,7 +480,7 @@ addLayer("g", {
             done() {
                 return player.g.points.gte(4)
             },
-            toggles: [['money', 'auto']],
+            toggles: [['money', 'auto'],['money', 'auto1'],['money', 'auto2']]
         },
     },
     upgrades: { // Streaming
@@ -492,7 +494,9 @@ addLayer("g", {
             currencyInternalName: "points",
             currencyLayer: "money",
             effect() {
-                return new Decimal(3).pow(player.g.points)
+                let base = new Decimal(3).pow(player.g.points)
+                if (hasUpgrade('g', 23)) base = base.times(upgradeEffect('g', 23))
+                return base
             },
             effectDisplay() {
                 return formatWhole(upgradeEffect(this.layer, this.id))+"/s"
@@ -556,7 +560,7 @@ addLayer("g", {
         },
         14: {
             title: "Streaming Power",
-            description: "GFRIEND Songs boost Popularity gain.<br>Requires 250 Subscribers.",
+            description: "GFRIEND Songs boost Popularity gain.<br>Requires 200 Subscribers.",
             cost() {
                 return new Decimal(1e49)
             },
@@ -564,7 +568,7 @@ addLayer("g", {
             currencyInternalName: "points",
             currencyLayer: "money",
             canAfford() {
-                return player.g.subs.gte(250)
+                return player.g.subs.gte(200)
             },
             effect() {
                 let i = new Decimal(3).pow(player.g.points)
@@ -602,7 +606,7 @@ addLayer("g", {
         },
         21: {
             title: "Banner Ad Enhancement",
-            description: "<b>Banner Ad</b> effect exponent is raised by 0.05 for every Streaming upgrade bought.",
+            description: "<b>Banner Ad</b> effect exponent is increased by 0.05 for every Streaming upgrade bought.",
             cost() {
                 return new Decimal(1e69) // nice
             },
@@ -622,7 +626,7 @@ addLayer("g", {
         },
         22: {
             title: "Video Ad Enhancement",
-            description: "<b>Video Ad</b> effect base is raised by 0.01 for every Streaming upgrade bought.",
+            description: "<b>Video Ad</b> effect base is increased by 0.01 for every Streaming upgrade bought.",
             cost() {
                 return new Decimal(1e83)
             },
@@ -638,6 +642,26 @@ addLayer("g", {
             },
             unlocked() {
                 return hasUpgrade('g', 21)
+            },
+        },
+        23: {
+            title: "More Views",
+            description: "You get 10% more views for every Streaming upgrade bought (additive).",
+            cost() {
+                return new Decimal(1e99)
+            },
+            currencyDisplayName: "Money",
+            currencyInternalName: "points",
+            currencyLayer: "money",
+            effect() {
+                let i = new Decimal(player.g.upgrades.length).times(0.1).add(1)
+                return i
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x"
+            },
+            unlocked() {
+                return hasUpgrade('g', 22)
             },
         },
     },
@@ -857,6 +881,466 @@ addLayer("story", {
     },
     tooltip() {
         return "Story"
+    },
+    layerShown(){
+        return true
+    },
+    doReset(resettingLayer) {
+		let keep = []
+		//if (layers[resettingLayer].id = '') layerDataReset("money", keep)
+	},
+})
+addLayer("ach", {
+    name: "Achievements", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "Ach", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 1, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: true,
+		points: new Decimal(0),
+    }},
+    color: "#ffc040",
+    resource: "Achievements", // Name of prestige currency
+    type: "none", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+    row: "side", // Row the layer is in on the tree (0 is the first row)
+    tabFormat: {
+        "Achievements": {
+            content: [
+                ["display-text",
+                    function() { 
+                        return '<h2>Achievements: '+player.ach.points+'/42 Completed</h2>' 
+                    },
+                    { 
+                        "color": "#dfdfdf"
+                    }],
+                "blank",
+                "achievements",
+            ],
+        },
+    },
+    tooltip() {
+        return "Achievements<br>("+player.ach.points+"/42)"
+    },
+    achievements: {
+        11: {
+            name: "You've Gotta Start Somewhere",
+            done() {
+                return player.money.points.lt(1) || player.money.points.gt(1) // pre-0.21 players should be able to get it
+            },
+            tooltip: "Spend your first bit of Money.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        12: {
+            name: "Start Getting Popular",
+            done() {
+                return player.points.gt(1)
+            },
+            tooltip: "Have more than 1 Popularity.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        13: {
+            name: "Ten isn't a Lot",
+            done() {
+                return player.money.points.gte(10)
+            },
+            tooltip: "Reach 10 Money.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        14: {
+            name: "Five Finger Popularity Punch",
+            done() {
+                return player.points.gte(5)
+            },
+            tooltip: "Reach 5 Popularity.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        15: {
+            name: "One Hundred is a Lot",
+            done() {
+                return player.money.points.gte(100)
+            },
+            tooltip: "Reach 100 Money.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        16: {
+            name: "Two-hand Popularity Punch",
+            done() {
+                return player.points.gte(10)
+            },
+            tooltip: "Reach 10 Popularity.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        17: {
+            name: "Thousand­aire",
+            done() {
+                return player.money.points.gte(1000)
+            },
+            tooltip: "Reach 1,000 Money.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        21: {
+            name: "POP=GFRD",
+            done() {
+                return player.points.gte(116)
+            },
+            tooltip: "Reach 116 Popularity.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        22: {
+            name: "You Forgot to Buff that!",
+            done() {
+                return hasUpgrade('money', 21)
+            },
+            tooltip: "Buy the 6th Money upgrade.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        23: {
+            name: "Maybe I Should Use Adblock...",
+            done() {
+                return getBuyableAmount('money', 11).gt(0)
+            },
+            tooltip: "Make your first Ad.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        24: {
+            name: "GFRIEND Debut Year",
+            done() {
+                return player.points.gte(2015)
+            },
+            tooltip: "Reach 2,015 Popularity.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        25: {
+            name: "The Slowest 30 Seconds Ever",
+            done() {
+                return getBuyableAmount('money', 12).gt(0)
+            },
+            tooltip: "Make your first Video Ad.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        26: {
+            name: "Million­aire",
+            done() {
+                return player.money.points.gte(1e6)
+            },
+            tooltip: "Reach 1,000,000 Money.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        27: {
+            name: "Double Decker",
+            done() {
+                return hasUpgrade('money', 25)
+            },
+            tooltip: "Buy the 10th Money upgrade.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        31: {
+            name: "Billion­aire",
+            done() {
+                return player.money.points.gte(1e9)
+            },
+            tooltip: "Reach 1e9 Money.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        32: {
+            name: "Own a Company",
+            done() {
+                return hasUpgrade('money', 31)
+            },
+            tooltip: "Found a business.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        33: {
+            name: "Try Not to Crash",
+            done() {
+                return getBuyableAmount('money', 13).gt(0)
+            },
+            tooltip: "Get 1 level of Investment.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        34: {
+            name: "Investment is OP Now",
+            done() {
+                return hasUpgrade('money', 32)
+            },
+            tooltip: "Buy the 12th Money Upgrade.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        35: {
+            name: "Trillion­aire",
+            done() {
+                return player.money.points.gte(1e12)
+            },
+            tooltip: "Reach 1e12 Money.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        36: {
+            name: "Korean Population",
+            done() {
+                return player.points.gte(51305186)
+            },
+            tooltip: "Reach 51,305,186 Popularity.", // Will become easier in the future
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        37: {
+            name: "Investment is Even More OP Now",
+            done() {
+                return hasUpgrade('money', 33)
+            },
+            tooltip: "Buy the 13th Money Upgrade.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        41: {
+            name: "Investment is Too OP Now",
+            done() {
+                return buyableEffect('money', 13).gte(1e6)
+            },
+            tooltip: "Get at least 1,000,000x bonus from Investment.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        42: {
+            name: "Prime Popularity",
+            done() {
+                return player.points.gte(998244353)
+            },
+            tooltip: "Reach 998,244,353 Popularity.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        43: {
+            name: "Sextillion­aire",
+            done() {
+                return player.money.points.gte(1e21)
+            },
+            tooltip: "Reach 1e21 Money.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        44: {
+            name: "Final Frontier",
+            done() {
+                return hasUpgrade('money', 34)
+            },
+            tooltip: "Buy the 14th Money Upgrade.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        45: {
+            name: "World Population",
+            done() {
+                return player.points.gte(7880728900)
+            },
+            tooltip: "Reach 7.88e9 Popularity.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        46: {
+            name: "Big 20",
+            done() {
+                return getBuyableAmount('money', 13).gte(20)
+            },
+            tooltip: "Get 20 levels of Investment.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        47: {
+            name: "To Re-debut and Beyond!",
+            done() {
+                return hasUpgrade('money', 35)
+            },
+            tooltip: "Re-debut GFRIEND.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        51: {
+            name: "First Song",
+            done() {
+                return player.g.points.gte(1)
+            },
+            tooltip: "Compose 1 GFRIEND Song.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        52: {
+            name: "Extra Popular",
+            done() {
+                return player.points.gte(5000500000000)
+            },
+            tooltip: "Reach 5.01e12 Popularity.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        53: {
+            name: "Decillion­aire",
+            done() {
+                return player.money.points.gte(1e33)
+            },
+            tooltip: "Reach 1e33 Money.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        54: {
+            name: "Second Song",
+            done() {
+                return player.g.points.gte(2)
+            },
+            tooltip: "Compose 2 GFRIEND Songs.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        55: {
+            name: "I Hit the Button!",
+            done() {
+                return player.g.views.gte(1)
+            },
+            tooltip: "Get 1 Video View.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        56: {
+            name: "Video Ad is Too OP Now",
+            done() {
+                return buyableEffect('money', 12).gte(1e6)
+            },
+            tooltip: "Get at least 1,000,000x bonus from Video Ad.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        57: {
+            name: "You Have One!",
+            done() {
+                return player.g.subs.gte(1)
+            },
+            tooltip: "Get 1 Subscriber.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        61: {
+            name: "Investment is Too OP^2 Now",
+            done() {
+                return buyableEffect('money', 13).gte(1e12)
+            },
+            tooltip: "Get at least 1e12x bonus from Investment.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        62: {
+            name: "Have 3 Songs and Prosper",
+            done() {
+                return player.g.points.gte(3)
+            },
+            tooltip: "Compose 3 GFRIEND Songs.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        63: {
+            name: "World World Population",
+            done() {
+                return player.points.gte(6.21e19)
+            },
+            tooltip: "Reach 6.21e19 Popularity.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        64: {
+            name: "Age of Automation",
+            done() {
+                return player.g.points.gte(4)
+            },
+            tooltip: "Compose 4 GFRIEND Songs to unlock autobuying of Money buyables.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        65: {
+            name: "Make Money!",
+            done() {
+                return hasUpgrade('g', 15)
+            },
+            tooltip: "Monetize your Channel.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        66: {
+            name: "Vigintillio­­naire",
+            done() {
+                return player.money.points.gte(1e63)
+            },
+            tooltip: "Reach 1e63 Money.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        67: {
+            name: "Googolaire",
+            done() {
+                return player.money.points.gte(new Decimal("1e100"))
+            },
+            tooltip: "Reach 1e100 Money.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
     },
     layerShown(){
         return true

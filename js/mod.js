@@ -13,16 +13,21 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.20",
-	name: "Initial Release",
+	num: "0.21",
+	name: "Achievements Update",
 }
 
 let changelog = `<h1>Changelog:</h1><br><br>
-	<h2>v0.2x - Classic Era</h2><br>
-	<h3>v0.20 - Initial Release</h3> (21/07/21 +60)<br>
+	<h2>v0.2x - Classic Era</h2><br><br>
+	<h3>v0.21 - Achievements Update</h3> (07/21/21 +60)<br>
+		- Added achievements because why not?<br>
+		- Added one more Streaming upgrade.<br>
+		- Added separate toggles for autobuying each of Money buyables.<br>
+		- Endgame is at 1e116 Money and 6 GFRIEND songs.<br><br>
+	<h3>v0.20 - Initial Release</h3> (07/21/21 +60)<br>
 		- Added contents up to Re-debut and Streaming.<br>
 		- Added story lines.<br>
-		- Endgame is at 1e100 Money.<br>`
+		- Endgame is at 1e100 Money and 5 GFRIEND songs.<br>`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
 
@@ -78,12 +83,12 @@ function formatDay() {
 // Display extra things at the top of the page
 var displayThings = [
 	formatDay(),
-	"Current Endgame: 1e100 Money",
+	"Current Endgame: 1e116 Money and 6 GFRIEND Songs",
 ]
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.money.points.gte(new Decimal("1e100"))
+	return player.money.points.gte(new Decimal("1e116")) && player.g.points.gte(6)
 }
 
 
