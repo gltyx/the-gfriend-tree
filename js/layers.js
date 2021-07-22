@@ -1074,7 +1074,7 @@ addLayer("ach", {
             content: [
                 ["display-text",
                     function() { 
-                        return '<h2>Achievements: '+player.ach.points+'/42 Completed</h2>' 
+                        return '<h2>Achievements: '+player.ach.points+'/49 Completed</h2>' 
                     },
                     { 
                         "color": "#dfdfdf"
@@ -1085,7 +1085,7 @@ addLayer("ach", {
         },
     },
     tooltip() {
-        return "Achievements<br>("+player.ach.points+"/42)"
+        return "Achievements<br>("+player.ach.points+"/49)"
     },
     achievements: {
         11: {
