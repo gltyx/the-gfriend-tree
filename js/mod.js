@@ -13,12 +13,17 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.21",
-	name: "Achievements Update",
+	num: "0.22",
+	name: "Albums Update",
 }
 
 let changelog = `<h1>Changelog:</h1><br><br>
 	<h2>v0.2x - Classic Era</h2><br><br>
+	<h3>v0.22 - Albums Update</h3> (07/22/21 +61)<br>
+		- Added albums.<br>
+		- Added 3 more Streaming upgrades.<br>
+		- Money buyable costs are greatly increased after 500 levels.<br>
+		- Endgame is at 1e182 Money and 8 GFRIEND songs.<br><br>
 	<h3>v0.21 - Achievements Update</h3> (07/21/21 +60)<br>
 		- Added achievements because why not?<br>
 		- Added one more Streaming upgrade.<br>
@@ -48,6 +53,7 @@ function canGenPoints(){
 function getPointGen() {
 	if(!canGenPoints()) return new Decimal(0)
 	let gain = new Decimal(0.05)
+	if (hasUpgrade('g', 25)) gain = gain.times(upgradeEffect('g', 25))
 	if (hasUpgrade('money', 14)) gain = gain.times(upgradeEffect('money', 14))
 	if (hasUpgrade('money', 15)) gain = gain.times(upgradeEffect('money', 15))
 	if (hasUpgrade('money', 21) && gain.gt(1)) gain = gain.pow(upgradeEffect('money', 21))
@@ -56,6 +62,8 @@ function getPointGen() {
 	if (player.g.unlocked) gain = gain.times(tmp.g.effect)
 	if (hasUpgrade('g', 13)) gain = gain.times(upgradeEffect('g', 13))
 	if (hasUpgrade('g', 14)) gain = gain.times(upgradeEffect('g', 14))
+	if (hasUpgrade('g', 31)) gain = gain.times(upgradeEffect('g', 31))
+	if (hasMilestone('g', 3)) gain = gain.times(player.g.salesEffect)
 	return gain
 }
 
@@ -83,12 +91,12 @@ function formatDay() {
 // Display extra things at the top of the page
 var displayThings = [
 	formatDay(),
-	"Current Endgame: 1e116 Money and 6 GFRIEND Songs",
+	"Current Endgame: 1e182 Money and 8 GFRIEND Songs",
 ]
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.money.points.gte(new Decimal("1e116")) && player.g.points.gte(6)
+	return player.money.points.gte(new Decimal("1e182")) && player.g.points.gte(8)
 }
 
 

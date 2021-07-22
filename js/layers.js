@@ -232,7 +232,12 @@ addLayer("money", {
         11: {
             title: "Banner Ad",
             cost(x) {
-                return new Decimal(10000).times(new Decimal(1.55).pow(x.pow(1.05)))
+                let n = new Decimal(10000).times(new Decimal(1.55).pow(x.pow(1.05)))
+                if (x.gte(500)) n = n.pow(x.sub(399).times(0.01))
+                if (x.gte(1000)) n = n.pow(x.sub(799).times(0.005))
+                if (x.gte(2500)) n = n.pow(x.sub(2099).times(0.0025))
+                if (x.gte(5000)) n = n.pow(x.sub(3999).times(0.001))
+                return n
             },
             display() {
                 if (hasUpgrade('money', 23)) return "<h3>Level:</h3> "+formatWhole(getBuyableAmount('money', 11))+"<br><h3>Effect:</h3> "+format(buyableEffect('money', 11))+"x Popularity and Money gain<br><h3>Cost:</h3> "+format(tmp.money.buyables[11].cost)+" Money"
@@ -262,7 +267,12 @@ addLayer("money", {
         12: {
             title: "Video Ad",
             cost(x) {
-                return new Decimal(160000).times(new Decimal(3.1).pow(x.pow(1.05)))
+                let n = new Decimal(160000).times(new Decimal(3.1).pow(x.pow(1.05)))
+                if (x.gte(500)) n = n.pow(x.sub(399).times(0.01))
+                if (x.gte(1000)) n = n.pow(x.sub(799).times(0.005))
+                if (x.gte(2500)) n = n.pow(x.sub(2099).times(0.0025))
+                if (x.gte(5000)) n = n.pow(x.sub(3999).times(0.001))
+                return n
             },
             display() {
                 return "<h3>Level:</h3> "+formatWhole(getBuyableAmount('money', 12))+"<br><h3>Effect:</h3> "+format(buyableEffect('money', 12))+"x Popularity and Money gain<br><h3>Cost:</h3> "+format(tmp.money.buyables[12].cost)+" Money"
@@ -290,7 +300,12 @@ addLayer("money", {
         13: {
             title: "Investment",
             cost(x) {
-                return new Decimal(1e9).times(new Decimal(4.65).pow(x.pow(1.05)))
+                let n = new Decimal(1e9).times(new Decimal(4.65).pow(x.pow(1.05)))
+                if (x.gte(500)) n = n.pow(x.sub(399).times(0.01))
+                if (x.gte(1000)) n = n.pow(x.sub(799).times(0.005))
+                if (x.gte(2500)) n = n.pow(x.sub(2099).times(0.0025))
+                if (x.gte(5000)) n = n.pow(x.sub(3999).times(0.001))
+                return n
             },
             display() {
                 return "<h3>Level:</h3> "+formatWhole(getBuyableAmount('money', 13))+"<br><h3>Effect:</h3> "+format(buyableEffect('money', 13))+"x Money gain<br><h3>Cost:</h3> "+format(tmp.money.buyables[13].cost)+" Money"
@@ -329,6 +344,7 @@ addLayer("money", {
         gain = gain.times(buyableEffect('money', 13))
         if (player.g.unlocked) gain = gain.times(tmp.g.effect)
         if (hasUpgrade('g', 15)) gain = gain.times(upgradeEffect('g', 15))
+        if (hasMilestone('g', 3)) gain = gain.times(player.g.salesEffect)
         player.money.ps = gain
         player.money.points = player.money.points.add(gain.times(diff))
     },
@@ -353,6 +369,8 @@ addLayer("g", {
 		points: new Decimal(0),
         views: new Decimal(0),
         subs: new Decimal(0),
+        sales: new Decimal(0),
+        salesEffect: new Decimal(1),
     }},
     color: "#f1f0ec",
     requires: new Decimal(1e30),
@@ -422,7 +440,7 @@ addLayer("g", {
                 "blank",
                 ["display-text",
                     function() {
-                        if (player.g.views.gte(1000)) format(player.g.views, 2)
+                        if (player.g.views.gte(1000)) return 'You have ' + format(player.g.views, 2) + ' Video Views'
                         return 'You have ' + format(player.g.views, 0) + ' Video Views' 
                     },
                     { 
@@ -430,7 +448,7 @@ addLayer("g", {
                     }],
                 ["display-text",
                     function() {
-                        if (player.g.subs.gte(1000)) format(player.g.subs, 2)
+                        if (player.g.subs.gte(1000)) return 'You have ' + format(player.g.subs, 2) + ' Subscribers'
                         return 'You have ' + format(player.g.subs, 0) + ' Subscribers' 
                     },
                     { 
@@ -441,6 +459,49 @@ addLayer("g", {
             ],
             unlocked() {
                 return hasMilestone('g', 0)
+            },
+        },
+        "Albums": {
+            content: [
+                "main-display",
+                "blank",
+                "prestige-button",
+                "blank",
+                ["display-text",
+                    function() { 
+                        return 'You have ' + format(player.points) + ' Popularity' 
+                    },
+                    { 
+                        "color": "#dfdfdf"
+                    }],
+                ["display-text",
+                    function() { 
+                        return 'You have ' + format(player.money.points) + ' Money' 
+                    },
+                    { 
+                        "color": "#dfdfdf"
+                    }],
+                "blank",
+                ["display-text",
+                    function() {
+                        if (player.g.sales.gte(1000)) return 'You have ' + format(player.g.sales, 2) + ' Album Sales'
+                        return 'You have ' + format(player.g.sales, 0) + ' Album Sales' 
+                    },
+                    { 
+                        "color": "#dfdfdf"
+                    }],
+                    ["display-text",
+                    function() {
+                        return 'Album Sales boost Popularity and Money gain by ' + format(player.g.salesEffect) + 'x'
+                    },
+                    { 
+                        "color": "#dfdfdf"
+                    }],
+                "blank",
+                "buyables",
+            ],
+            unlocked() {
+                return hasMilestone('g', 3)
             },
         },
     },
@@ -482,11 +543,18 @@ addLayer("g", {
             },
             toggles: [['money', 'auto'],['money', 'auto1'],['money', 'auto2']]
         },
+        3: {
+            requirementDescription: "6 GFRIEND Songs",
+            effectDescription: "Unlock Albums.",
+            done() {
+                return player.g.points.gte(6)
+            },
+        },
     },
     upgrades: { // Streaming
         11: {
             title: "Upload First Video",
-            description: "Earn Views based on GFRIEND Songs.",
+            description: "Earn Views based on GFRIEND Songs.<br>Softcapped at 1,000,000 views/sec.",
             cost() {
                 return new Decimal(1e37)
             },
@@ -496,6 +564,13 @@ addLayer("g", {
             effect() {
                 let base = new Decimal(3).pow(player.g.points)
                 if (hasUpgrade('g', 23)) base = base.times(upgradeEffect('g', 23))
+                if (hasUpgrade('g', 24)) base = base.times(upgradeEffect('g', 24))
+                if (base.gt(1e6))
+                {
+                    let j = base.div(1e6)
+                    j = j.pow(0.5)
+                    base = new Decimal(1e6).times(j)
+                }
                 return base
             },
             effectDisplay() {
@@ -507,7 +582,7 @@ addLayer("g", {
         },
         12: {
             title: "Subscription",
-            description: "Earn Subscribers based on Views growth rate.<br>Requires 100 Views.",
+            description: "Earn Subscribers based on Views growth rate.<br>Softcapped at 1,000 subs/sec.<br>Requires 100 Views.",
             cost() {
                 return new Decimal(1e39)
             },
@@ -664,16 +739,108 @@ addLayer("g", {
                 return hasUpgrade('g', 22)
             },
         },
+        24: {
+            title: "Streaming Investment",
+            description: "You get 1% more views for every <b>Investment</b> level (additive).",
+            cost() {
+                return new Decimal(1e117)
+            },
+            currencyDisplayName: "Money",
+            currencyInternalName: "points",
+            currencyLayer: "money",
+            effect() {
+                let i = getBuyableAmount('money', 13).times(0.01).add(1)
+                return i
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x"
+            },
+            unlocked() {
+                return hasUpgrade('g', 23)
+            },
+        },
+        25: {
+            title: "Yet Another Streaming Upgrade",
+            description: "Multiply Popularity gain by 9, before all other boosts.",
+            cost() {
+                return new Decimal(1e137)
+            },
+            currencyDisplayName: "Money",
+            currencyInternalName: "points",
+            currencyLayer: "money",
+            effect() {
+                let i = new Decimal(9)
+                return i
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x"
+            },
+            unlocked() {
+                return hasUpgrade('g', 24)
+            },
+        },
+        31: {
+            title: "Yet Another Streaming Upgrade",
+            description: "Multiply Popularity gain by 99, after all other boosts.",
+            cost() {
+                return new Decimal(1e159)
+            },
+            currencyDisplayName: "Money",
+            currencyInternalName: "points",
+            currencyLayer: "money",
+            effect() {
+                let i = new Decimal(99)
+                return i
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x"
+            },
+            unlocked() {
+                return hasUpgrade('g', 25)
+            },
+        },
+    },
+    buyables: {
+        11: {
+            title: "Album Promotion",
+            cost(x) {
+                return new Decimal("1e135").times(new Decimal(1e10).pow(x.pow(1.1)))
+            },
+            display() {
+                return "<h3>Level:</h3> "+formatWhole(getBuyableAmount('g', 11))+"<br><h3>Effect:</h3> "+format(buyableEffect('g', 11))+" Album Sales/sec<br><h3>Cost:</h3> "+format(tmp.g.buyables[11].cost)+" Money"
+            },
+            canAfford() {
+                return player.money.points.gte(this.cost())
+            },
+            buy() {
+                if (this.canAfford)
+                {
+                    player.money.points = player.money.points.sub(tmp[this.layer].buyables[this.id].cost)
+                    addBuyables(this.layer, this.id, 1)
+                }
+            },
+            effect(x) {
+                let n = new Decimal(2).pow(x.div(2)).times(10)
+                return n
+            },
+            unlocked() {
+                return hasMilestone('g', 3)
+            },
+        },
     },
     layerShown(){
-        return hasUpgrade('money', 35) || player.g.unlocked
+        return hasUpgrade('money', 35)
     },
     onPrestige() {
         player.money.points = player.money.points.sub(tmp.g.nextAt)
     },
+    updateSales() {
+        player.g.salesEffect = player.g.sales.round().add(1).pow(0.875)
+    },
     update(diff) {
         if (hasUpgrade('g', 11)) player.g.views = player.g.views.add(upgradeEffect('g', 11).times(diff))
         if (hasUpgrade('g', 12)) player.g.subs = player.g.subs.add(upgradeEffect('g', 12).times(diff))
+        if (hasMilestone('g', 3)) player.g.sales = player.g.sales.add(buyableEffect('g', 11).times(diff))
     },
     doReset(resettingLayer) {
 		let keep = []
@@ -683,7 +850,7 @@ addLayer("g", {
 addLayer("story", {
     name: "Story", // This is optional, only used in a few places, If absent it just uses the layer id.
     symbol: "📘", // This appears on the layer's node. Default is the id with the first letter capitalized
-    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    position: 3, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
         unlocked: true,
 		points: new Decimal(0),
@@ -859,23 +1026,23 @@ addLayer("story", {
             },
         },
         thirteen: {
-            title: "STORY #13",
+            title: "Album Release",
             body() {
-                let text = "??????"
+                let text = "Your album just went on sale. It will be available on many stores. Album sales will greatly boost both your popularity and income. You celebrated this monumental day with all the employees in your company, including the group members."
                 return text
             },
             unlocked() {
-                return false
+                return player.g.sales.gte(1)
             },
         },
         fourteen: {
-            title: "STORY #14",
+            title: "Play Button",
             body() {
-                let text = "??????"
+                let text = "Your channel just reached 100,000 subscribers. You got the silver play button. 100,000 subscriber is a big milestone in the road to the channel's success. Now let's aim for 1,000,000 subscribers and beyond!"
                 return text
             },
             unlocked() {
-                return false
+                return player.g.subs.gte(100000)
             },
         },
     },
@@ -893,7 +1060,7 @@ addLayer("story", {
 addLayer("ach", {
     name: "Achievements", // This is optional, only used in a few places, If absent it just uses the layer id.
     symbol: "Ach", // This appears on the layer's node. Default is the id with the first letter capitalized
-    position: 1, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    position: 4, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
         unlocked: true,
 		points: new Decimal(0),
