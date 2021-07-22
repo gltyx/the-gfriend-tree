@@ -1508,6 +1508,76 @@ addLayer("ach", {
                 player.ach.points = player.ach.points.add(1)
             },
         },
+        71: {
+            name: "First Album",
+            done() {
+                return hasMilestone('g', 3)
+            },
+            tooltip: "Unlock Albums.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        72: {
+            name: "World^4 Population",
+            done() {
+                return player.points.gte(3.86e39)
+            },
+            tooltip: "Reach 3.86e39 Popularity.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        73: {
+            name: "Thousand Seller",
+            done() {
+                return player.g.sales.gte(1000)
+            },
+            tooltip: "Reach 1,000 Album Sales.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        74: {
+            name: "You're on the 'Tube!",
+            done() {
+                return player.g.views.gte(1000000)
+            },
+            tooltip: "Reach 1,000,000 Video Views.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        75: {
+            name: "Silver Play Button",
+            done() {
+                return player.g.subs.gte(100000)
+            },
+            tooltip: "Reach 100,000 Subscribers.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        76: {
+            name: "GFRIEND Average Height",
+            done() {
+                return player.money.points.gte(1e168)
+            },
+            tooltip: "Reach 1e168 Money.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        77: {
+            name: "Myriad Seller",
+            done() {
+                return player.g.sales.gte(10000)
+            },
+            tooltip: "Reach 10,000 Album Sales.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
     },
     layerShown(){
         return true

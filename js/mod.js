@@ -19,6 +19,8 @@ let VERSION = {
 
 let changelog = `<h1>Changelog:</h1><br><br>
 	<h2>v0.2x - Classic Era</h2><br><br>
+	<h3>v0.23 - More Achievements Update</h3> (07/22/21 +61)<br>
+		- Added 7 more achievements due to the complaints from players.<br><br>
 	<h3>v0.22 - Albums Update</h3> (07/22/21 +61)<br>
 		- Added albums.<br>
 		- Added 3 more Streaming upgrades.<br>
