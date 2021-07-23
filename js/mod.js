@@ -19,7 +19,7 @@ let VERSION = {
 
 let changelog = `<h1>Changelog:</h1><br><br>
 	<h2>v0.2x - Classic Era</h2><br><br>
-	<h3>v0.24 - Infinity Update</h3> (07/22/21 +61)<br>
+	<h3>v0.24 - Infinity Update</h3> (07/23/21 +62)<br>
 		- Added 15 more achievements.<br>
 		- Endgame is at 1.79e308 Money and 10 GFRIEND songs.<br><br>
 	<h3>v0.23 - More Achievements Update</h3> (07/22/21 +61)<br>
