@@ -1,8 +1,8 @@
 let modInfo = {
-	name: "The Element Tree",
-	id: "element",
+	name: "The GFRIEND Tree",
+	id: "gfriendforever",
 	author: "sleepground123",
-	pointsName: "Matter",
+	pointsName: "Popularity",
 	modFiles: ["layers.js", "tree.js"],
 
 	discordName: "",
@@ -11,30 +11,33 @@ let modInfo = {
 	offlineLimit: 0,  // In hours
 }
 
-// Set your version in num and name
+// 2,037 Lines
 let VERSION = {
-	num: "0.0.7",
-	name: "Deuterium Update",
+	num: "0.24",
+	name: "Infinity Update",
 }
 
-let changelog = `<h1>Changelog:</h1><br>
-	<h2>v0.0 - Pre-Release Versions</h2><br>
-	<h3>v0.0.7 - Deuterium Update</h3><br>
-		- Added Deuterium.<br>
-	<h3>v0.0.6 - UI Update</h3><br>
-		- Upgrade titles are shown.<br>
-	<h3>v0.0.5 - Lithium Update</h3><br>
-		- Added Lithium.<br>
-		- Added 7 new Achievements. (total 35)<br>
-	<h3>v0.0.4 - Anti-Inflation Update</h3><br>
-		- Significantly nerfed 2nd Helium Upgrade.<br>
-		- 1st Helium Upgrade's softcap is lower, but the effect reaches the softcap faster.<br>
-	<h3>v0.0.3 - Achievement Update</h3><br>
-		- Added 28 Achievements.<br>
-	<h3>v0.0.2 - Helium Update</h3><br>
-		- Added Helium.<br>
-	<h3>v0.0.1 - Hydrogen Update</h3><br>
-		- Added Hydrogen.<br>`
+let changelog = `<h1>Changelog:</h1><br><br>
+	<h2>v0.2x - Classic Era</h2><br><br>
+	<h3>v0.24 - Infinity Update</h3> (07/23/21 +62)<br>
+		- Added 15 more achievements.<br>
+		- Endgame is at 1.79e308 Money and 10 GFRIEND songs.<br><br>
+	<h3>v0.23 - More Achievements Update</h3> (07/22/21 +61)<br>
+		- Added 7 more achievements due to the complaints from players.<br><br>
+	<h3>v0.22 - Albums Update</h3> (07/22/21 +61)<br>
+		- Added albums.<br>
+		- Added 3 more Streaming upgrades.<br>
+		- Money buyable costs are greatly increased after 500 levels.<br>
+		- Endgame is at 1e182 Money and 8 GFRIEND songs.<br><br>
+	<h3>v0.21 - Achievements Update</h3> (07/21/21 +60)<br>
+		- Added achievements because why not?<br>
+		- Added one more Streaming upgrade.<br>
+		- Added separate toggles for autobuying each of Money buyables.<br>
+		- Endgame is at 1e116 Money and 6 GFRIEND songs.<br><br>
+	<h3>v0.20 - Initial Release</h3> (07/21/21 +60)<br>
+		- Added contents up to Re-debut and Streaming.<br>
+		- Added story lines.<br>
+		- Endgame is at 1e100 Money and 5 GFRIEND songs.<br>`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
 
@@ -48,22 +51,24 @@ function getStartPoints(){
 
 // Determines if it should show points/sec
 function canGenPoints(){
-	return true
+	return hasUpgrade('money', 12)
 }
 
 // Calculate points/sec!
 function getPointGen() {
-	if(!canGenPoints())
-		return new Decimal(0)
-	let gain = new Decimal(0)
-	if (hasUpgrade("H", 11)) gain = gain.add(0.1)
-	if (hasUpgrade("H", 12)) gain = gain.times(upgradeEffect("H", 12))
-	if (hasUpgrade("H", 14)) gain = gain.times(upgradeEffect("H", 14))
-	if (player["He"].unlocked) gain = gain.times(tmp["He"].effect)
-	if (hasUpgrade("He", 13)) gain = gain.times(upgradeEffect("He", 13))
-	if (hasMilestone("He", 1)) gain = gain.times(player["Ach"].points.div(5).add(1))
-	if (player["Li"].unlocked) gain = gain.times(tmp["Li"].effect)
-	if (hasUpgrade("Li", 13)) gain = gain.times(upgradeEffect("Li", 13))
+	if(!canGenPoints()) return new Decimal(0)
+	let gain = new Decimal(0.05)
+	if (hasUpgrade('g', 25)) gain = gain.times(upgradeEffect('g', 25))
+	if (hasUpgrade('money', 14)) gain = gain.times(upgradeEffect('money', 14))
+	if (hasUpgrade('money', 15)) gain = gain.times(upgradeEffect('money', 15))
+	if (hasUpgrade('money', 21) && gain.gt(1)) gain = gain.pow(upgradeEffect('money', 21))
+	gain = gain.times(buyableEffect('money', 11))
+	gain = gain.times(buyableEffect('money', 12))
+	if (player.g.unlocked) gain = gain.times(tmp.g.effect)
+	if (hasUpgrade('g', 13)) gain = gain.times(upgradeEffect('g', 13))
+	if (hasUpgrade('g', 14)) gain = gain.times(upgradeEffect('g', 14))
+	if (hasUpgrade('g', 31)) gain = gain.times(upgradeEffect('g', 31))
+	if (hasMilestone('g', 3)) gain = gain.times(player.g.salesEffect)
 	return gain
 }
 
@@ -71,27 +76,46 @@ function getPointGen() {
 function addedPlayerData() { return {
 }}
 
+// GFRIEND Disbandment Clock
+const zeroTime = 1621609200000 // 2021/05/22 00:00:00
+const perDay = 86400000 // milliseconds per day
+
+// Calculate the # of days since disbandment
+function calculateDay() {
+	let time = Date.now()
+	time = time - zeroTime
+	time = Math.floor(time / perDay)
+	return time
+}
+
+function formatDay() {
+	let time = calculateDay()
+	return "GFRIEND Disbandment D+"+time
+}
+
 // Display extra things at the top of the page
 var displayThings = [
-	"Layers are reset along branches."
+	formatDay(),
+	"Current Endgame: 1.79e308 Money and 10 GFRIEND Songs",
 ]
-
-var backgroundStyle = {
-
-}
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.points.gte(new Decimal("e19951207"))
+	return player.money.points.gte(new Decimal("1.79e308")) && player.g.points.gte(10)
 }
 
 
 
 // Less important things beyond this point!
 
+// Style for the background, can be a function
+var backgroundStyle = {
+
+}
+
 // You can change this if you have things that can be messed up by long tick lengths
 function maxTickLength() {
-	return(300) // Default is 1 hour which is just arbitrarily large
+	return(6666)
 }
 
 // Use this if you need to undo inflation from an older version. If the version is older than the version that fixed the issue,

@@ -1,6 +1,6 @@
 .upg {
-	min-height: 120px;
-	width: 120px;
+	min-height: 128px;
+	width: 128px;
 	border-radius: 25%;
 	border: 2px solid;
 	border-color: rgba(0, 0, 0, 0.125);
@@ -24,8 +24,8 @@
 }
 
 .buyable {
-	height: 200px;
-	width: 200px;
+	height: 192px;
+	width: 192px;
 	border-radius: 25%;
 	border: 2px solid;
 	border-color: rgba(0, 0, 0, 0.125);
@@ -35,7 +35,7 @@
 
 .milestone {
 	width: 100%;
-	min-width: 120px;
+	min-width: 192px;
 	padding-left: 5px;
 	padding-right: 5px;
 	height: 75px;
@@ -48,7 +48,7 @@
 
 .milestoneDone {
 	width: 100%;
-	min-width: 120px;
+	min-width: 192px;
 	padding-left: 5px;
 	padding-right: 5px;
 
