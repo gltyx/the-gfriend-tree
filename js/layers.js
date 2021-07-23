@@ -237,6 +237,7 @@ addLayer("money", {
                 if (x.gte(1000)) n = n.pow(x.sub(799).times(0.005))
                 if (x.gte(2500)) n = n.pow(x.sub(2099).times(0.0025))
                 if (x.gte(5000)) n = n.pow(x.sub(3999).times(0.001))
+                if (x.gte(10000)) n = n.pow(x.sub(8999).times(0.001))
                 return n
             },
             display() {
@@ -272,6 +273,7 @@ addLayer("money", {
                 if (x.gte(1000)) n = n.pow(x.sub(799).times(0.005))
                 if (x.gte(2500)) n = n.pow(x.sub(2099).times(0.0025))
                 if (x.gte(5000)) n = n.pow(x.sub(3999).times(0.001))
+                if (x.gte(10000)) n = n.pow(x.sub(8999).times(0.001))
                 return n
             },
             display() {
@@ -291,6 +293,7 @@ addLayer("money", {
                 let base = new Decimal(1.2)
                 if (hasUpgrade('money', 34)) base = base.add(0.1)
                 if (hasUpgrade('g', 22)) base = base.add(upgradeEffect('g', 22))
+                if (hasUpgrade('g', 34)) base = base.add(0.02)
                 return base.pow(x)
             },
             unlocked() {
@@ -305,6 +308,7 @@ addLayer("money", {
                 if (x.gte(1000)) n = n.pow(x.sub(799).times(0.005))
                 if (x.gte(2500)) n = n.pow(x.sub(2099).times(0.0025))
                 if (x.gte(5000)) n = n.pow(x.sub(3999).times(0.001))
+                if (x.gte(10000)) n = n.pow(x.sub(8999).times(0.001))
                 return n
             },
             display() {
@@ -550,6 +554,13 @@ addLayer("g", {
                 return player.g.points.gte(6)
             },
         },
+        4: {
+            requirementDescription: "8 GFRIEND Songs",
+            effectDescription: "Unlock a second Album buyable.",
+            done() {
+                return player.g.points.gte(8)
+            },
+        },
     },
     upgrades: { // Streaming
         11: {
@@ -780,14 +791,17 @@ addLayer("g", {
             },
         },
         31: {
-            title: "Yet Another Streaming Upgrade",
-            description: "Multiply Popularity gain by 99, after all other boosts.",
+            title: "Silver Play Button",
+            description: "Multiply Popularity gain by 99.<br>Requires 100,000 Subscribers.",
             cost() {
                 return new Decimal(1e159)
             },
             currencyDisplayName: "Money",
             currencyInternalName: "points",
             currencyLayer: "money",
+            canAfford() {
+                return player.g.subs.gte(1e5)
+            },
             effect() {
                 let i = new Decimal(99)
                 return i
@@ -799,12 +813,87 @@ addLayer("g", {
                 return hasUpgrade('g', 25)
             },
         },
+        32: {
+            title: "Double Silver Play Button",
+            description: "Multiply Popularity gain by 199.<br>Requires 200,000 Subscribers.",
+            cost() {
+                return new Decimal(1e183)
+            },
+            currencyDisplayName: "Money",
+            currencyInternalName: "points",
+            currencyLayer: "money",
+            canAfford() {
+                return player.g.subs.gte(2e5)
+            },
+            effect() {
+                let i = new Decimal(199)
+                return i
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x"
+            },
+            unlocked() {
+                return hasUpgrade('g', 31)
+            },
+        },
+        33: {
+            title: "Gold Play Button",
+            description: "Multiply Popularity gain by 999.<br>Requires 1,000,000 Subscribers.",
+            cost() {
+                return new Decimal("1e209")
+            },
+            currencyDisplayName: "Money",
+            currencyInternalName: "points",
+            currencyLayer: "money",
+            canAfford() {
+                return player.g.subs.gte(1e6)
+            },
+            effect() {
+                let i = new Decimal(999)
+                return i
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x"
+            },
+            unlocked() {
+                return hasUpgrade('g', 32)
+            },
+        },
+        34: {
+            title: "Double Gold Play Button",
+            description: "Multiply Popularity gain by 9999, and add 0.02 to <b>Video Ad</b> effect base.<br>Requires 2,000,000 Subscribers.",
+            cost() {
+                return new Decimal("1e237")
+            },
+            currencyDisplayName: "Money",
+            currencyInternalName: "points",
+            currencyLayer: "money",
+            canAfford() {
+                return player.g.subs.gte(2e6)
+            },
+            effect() {
+                let i = new Decimal(9999)
+                return i
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x, +0.03 to base"
+            },
+            unlocked() {
+                return hasUpgrade('g', 33)
+            },
+        },
     },
     buyables: {
         11: {
-            title: "Album Promotion",
+            title: "Album Marketing",
             cost(x) {
-                return new Decimal("1e135").times(new Decimal(1e10).pow(x.pow(1.1)))
+                let n = new Decimal("1e135").times(new Decimal(1e10).pow(x.pow(1.1)))
+                if (x.gte(10)) n = n.pow(x.sub(-11).div(20))
+                if (x.gte(20)) n = n.pow(x.sub(-1).div(20))
+                if (x.gte(30)) n = n.pow(x.sub(9).div(20))
+                if (x.gte(40)) n = n.pow(x.sub(19).div(20))
+                if (x.gte(50)) n = n.pow(x.sub(39).div(10))
+                return n
             },
             display() {
                 return "<h3>Level:</h3> "+formatWhole(getBuyableAmount('g', 11))+"<br><h3>Effect:</h3> "+format(buyableEffect('g', 11))+" Album Sales/sec<br><h3>Cost:</h3> "+format(tmp.g.buyables[11].cost)+" Money"
@@ -827,6 +916,32 @@ addLayer("g", {
                 return hasMilestone('g', 3)
             },
         },
+        12: {
+            title: "Album Promotion",
+            cost(x) {
+                return new Decimal("1e200").times(new Decimal(1e11).pow(x.pow(2.2)))
+            },
+            display() {
+                return "<h3>Level:</h3> "+formatWhole(getBuyableAmount('g', 12))+"<br><h3>Effect:</h3> +"+format(buyableEffect('g', 12))+" to Album Sales effect exponent<br><h3>Cost:</h3> "+format(tmp.g.buyables[12].cost)+" Money"
+            },
+            canAfford() {
+                return player.money.points.gte(this.cost())
+            },
+            buy() {
+                if (this.canAfford)
+                {
+                    player.money.points = player.money.points.sub(tmp[this.layer].buyables[this.id].cost)
+                    addBuyables(this.layer, this.id, 1)
+                }
+            },
+            effect(x) {
+                let n = new Decimal(0.5).times(x)
+                return n
+            },
+            unlocked() {
+                return hasMilestone('g', 4)
+            },
+        },
     },
     layerShown(){
         return hasUpgrade('money', 35)
@@ -835,7 +950,7 @@ addLayer("g", {
         player.money.points = player.money.points.sub(tmp.g.nextAt)
     },
     updateSales() {
-        player.g.salesEffect = player.g.sales.round().add(1).pow(0.875)
+        player.g.salesEffect = player.g.sales.round().add(1).pow(buyableEffect('g', 12).add(1))
     },
     update(diff) {
         if (hasUpgrade('g', 11)) player.g.views = player.g.views.add(upgradeEffect('g', 11).times(diff))
@@ -1074,7 +1189,7 @@ addLayer("ach", {
             content: [
                 ["display-text",
                     function() { 
-                        return '<h2>Achievements: '+player.ach.points+'/49 Completed</h2>' 
+                        return '<h2>Achievements: '+player.ach.points+'/64 Completed</h2>' 
                     },
                     { 
                         "color": "#dfdfdf"
@@ -1085,7 +1200,7 @@ addLayer("ach", {
         },
     },
     tooltip() {
-        return "Achievements<br>("+player.ach.points+"/49)"
+        return "Achievements<br>("+player.ach.points+"/64)"
     },
     achievements: {
         11: {
@@ -1574,6 +1689,216 @@ addLayer("ach", {
                 return player.g.sales.gte(10000)
             },
             tooltip: "Reach 10,000 Album Sales.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        81: {
+            name: "Double Silver Play Button",
+            done() {
+                return player.g.subs.gte(200000)
+            },
+            tooltip: "Reach 200,000 Subscribers.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        82: {
+            name: "Lucky Number",
+            done() {
+                return player.points.gte(7.77e77)
+            },
+            tooltip: "Reach 7.77e77 Popularity.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        83: {
+            name: "CSJH The Grace",
+            done() {
+                return player.g.sales.gte(31240)
+            },
+            tooltip: "Reach 31,240 Album Sales.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        84: {
+            name: "Gargoogol­aire",
+            done() {
+                return player.money.points.gte(new Decimal("1e200"))
+            },
+            tooltip: "Reach 1e200 Money.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        85: {
+            name: "You do what for a living?!",
+            done() {
+                return player.g.views.gte(2e7)
+            },
+            tooltip: "Reach 20,000,000 Video Views.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        86: {
+            name: "Gold Play Button",
+            done() {
+                return player.g.subs.gte(1e6)
+            },
+            tooltip: "Reach 1,000,000 Subscribers.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        87: {
+            name: "Albums are OP Now",
+            done() {
+                return getBuyableAmount('g', 12).gte(2)
+            },
+            tooltip: "Get 2 levels of Album Promotion.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        91: {
+            name: "(softcapped)",
+            done() {
+                return getBuyableAmount('g', 11).gte(10)
+            },
+            tooltip: "Get 10 levels of Album Marketing.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        92: {
+            name: "Lakh Seller",
+            done() {
+                return player.g.sales.gte(100000)
+            },
+            tooltip: "Reach 100,000 Album Sales.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        93: {
+            name: "Googologi­cally Popular",
+            done() {
+                return player.points.gte(new Decimal("1e100"))
+            },
+            tooltip: "Reach 1e100 Popularity.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        94: {
+            name: "Rough",
+            done() {
+                return player.g.views.gte(7.349e7)
+            },
+            tooltip: "Reach 73,490,000 Video Views.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        95: {
+            name: "Double Gold Play Button",
+            done() {
+                return player.g.subs.gte(2e6)
+            },
+            tooltip: "Reach 2,000,000 Subscribers.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        96: {
+            name: "Can't Handle that Much Songs!",
+            done() {
+                return player.g.points.gte(10)
+            },
+            tooltip: "Reach 10 GFRIEND Songs.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        97: {
+            name: "Platinum Record",
+            done() {
+                return player.g.sales.gte(250000)
+            },
+            tooltip: "Reach 250,000 Album Sales.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        101: {
+            name: "Infinity-naire",
+            done() {
+                return player.money.points.gte(new Decimal("1.79e308"))
+            },
+            tooltip: "Reach 1.79e308 Money.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        102: {
+            name: "[redacted]",
+            done() {
+                return false
+            },
+            tooltip: "[redacted]",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        103: {
+            name: "[classified]",
+            done() {
+                return false
+            },
+            tooltip: "[classified]",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        104: {
+            name: "[redacted]",
+            done() {
+                return false
+            },
+            tooltip: "[redacted]",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        105: {
+            name: "[classified]",
+            done() {
+                return false
+            },
+            tooltip: "[classified]",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        106: {
+            name: "[redacted]",
+            done() {
+                return false
+            },
+            tooltip: "[redacted]",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        107: {
+            name: "[classified]",
+            done() {
+                return false
+            },
+            tooltip: "[classified]",
             onComplete() {
                 player.ach.points = player.ach.points.add(1)
             },

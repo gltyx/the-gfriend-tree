@@ -11,14 +11,17 @@ let modInfo = {
 	offlineLimit: 0,  // In hours
 }
 
-// Set your version in num and name
+// 2,037 Lines
 let VERSION = {
-	num: "0.23",
-	name: "More Achievements Update",
+	num: "0.24",
+	name: "Infinity Update",
 }
 
 let changelog = `<h1>Changelog:</h1><br><br>
 	<h2>v0.2x - Classic Era</h2><br><br>
+	<h3>v0.24 - Infinity Update</h3> (07/22/21 +61)<br>
+		- Added 15 more achievements.<br>
+		- Endgame is at 1.79e308 Money and 10 GFRIEND songs.<br><br>
 	<h3>v0.23 - More Achievements Update</h3> (07/22/21 +61)<br>
 		- Added 7 more achievements due to the complaints from players.<br><br>
 	<h3>v0.22 - Albums Update</h3> (07/22/21 +61)<br>
@@ -93,12 +96,12 @@ function formatDay() {
 // Display extra things at the top of the page
 var displayThings = [
 	formatDay(),
-	"Current Endgame: 1e182 Money and 8 GFRIEND Songs",
+	"Current Endgame: 1.79e308 Money and 10 GFRIEND Songs",
 ]
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.money.points.gte(new Decimal("1e182")) && player.g.points.gte(8)
+	return player.money.points.gte(new Decimal("1.79e308")) && player.g.points.gte(10)
 }
 
 
