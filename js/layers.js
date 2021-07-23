@@ -37,6 +37,16 @@ addLayer("money", {
         "blank",
         "upgrades",
     ],
+    hotkeys: [
+        {
+            key: 'ctrl+s',
+            description: 'Ctrl+S: Save the game',
+            unlocked: true,
+            onPress() {
+			    save(true)
+		    },
+        },
+    ],
     upgrades: {
         11: {
             title: "Begin",
