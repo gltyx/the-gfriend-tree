@@ -3,7 +3,7 @@ let modInfo = {
 	id: "gfriendforever",
 	author: "sleepground123",
 	pointsName: "Popularity",
-	modFiles: ["layers.js", "tree.js"],
+	modFiles: ["tree.js", "changelog.js", "layers/ach.js", "layers/story.js", "layers/money.js", "layers/g.js", "layers/f.js"],
 
 	discordName: "",
 	discordLink: "",
@@ -11,33 +11,10 @@ let modInfo = {
 	offlineLimit: 0,  // In hours
 }
 
-// 2,037 Lines
 let VERSION = {
-	num: "0.24",
-	name: "Infinity Update",
+	num: "0.25",
+	name: "Fans Update Part 1",
 }
-
-let changelog = `<h1>Changelog:</h1><br><br>
-	<h2>v0.2x - Classic Era</h2><br><br>
-	<h3>v0.24 - Infinity Update</h3> (07/23/21 +62)<br>
-		- Added 15 more achievements.<br>
-		- Endgame is at 1.79e308 Money and 10 GFRIEND songs.<br><br>
-	<h3>v0.23 - More Achievements Update</h3> (07/22/21 +61)<br>
-		- Added 7 more achievements due to the complaints from players.<br><br>
-	<h3>v0.22 - Albums Update</h3> (07/22/21 +61)<br>
-		- Added albums.<br>
-		- Added 3 more Streaming upgrades.<br>
-		- Money buyable costs are greatly increased after 500 levels.<br>
-		- Endgame is at 1e182 Money and 8 GFRIEND songs.<br><br>
-	<h3>v0.21 - Achievements Update</h3> (07/21/21 +60)<br>
-		- Added achievements because why not?<br>
-		- Added one more Streaming upgrade.<br>
-		- Added separate toggles for autobuying each of Money buyables.<br>
-		- Endgame is at 1e116 Money and 6 GFRIEND songs.<br><br>
-	<h3>v0.20 - Initial Release</h3> (07/21/21 +60)<br>
-		- Added contents up to Re-debut and Streaming.<br>
-		- Added story lines.<br>
-		- Endgame is at 1e100 Money and 5 GFRIEND songs.<br>`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
 
@@ -68,6 +45,10 @@ function getPointGen() {
 	if (hasUpgrade('g', 13)) gain = gain.times(upgradeEffect('g', 13))
 	if (hasUpgrade('g', 14)) gain = gain.times(upgradeEffect('g', 14))
 	if (hasUpgrade('g', 31)) gain = gain.times(upgradeEffect('g', 31))
+	if (hasUpgrade('g', 32)) gain = gain.times(upgradeEffect('g', 32))
+	if (hasUpgrade('g', 33)) gain = gain.times(upgradeEffect('g', 33))
+	if (hasUpgrade('g', 34)) gain = gain.times(upgradeEffect('g', 34))
+	if (hasUpgrade('g', 35)) gain = gain.times(upgradeEffect('g', 35))
 	if (hasMilestone('g', 3)) gain = gain.times(player.g.salesEffect)
 	return gain
 }
@@ -96,12 +77,12 @@ function formatDay() {
 // Display extra things at the top of the page
 var displayThings = [
 	formatDay(),
-	"Current Endgame: 1.79e308 Money and 10 GFRIEND Songs",
+	"Current Endgame: 1e380 Money and 1,000 Fans",
 ]
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.money.points.gte(new Decimal("1.79e308")) && player.g.points.gte(10)
+	return player.money.points.gte(new Decimal("1e380")) && player.f.points.gte(1000)
 }
 
 
@@ -115,7 +96,7 @@ var backgroundStyle = {
 
 // You can change this if you have things that can be messed up by long tick lengths
 function maxTickLength() {
-	return(6666)
+	return(1000)
 }
 
 // Use this if you need to undo inflation from an older version. If the version is older than the version that fixed the issue,
