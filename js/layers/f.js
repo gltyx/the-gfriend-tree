@@ -41,6 +41,7 @@ addLayer("f", {
         let gain = new Decimal(1)
         if (hasUpgrade('f', 14)) gain = gain.times(upgradeEffect('f', 14))
         if (hasUpgrade('f', 24)) gain = gain.times(upgradeEffect('f', 24))
+        if (hasUpgrade('f', 45)) gain = gain.times(upgradeEffect('f', 45))
         return gain
     },
     row: 1, // Row the layer is in on the tree (0 is the first row)
@@ -79,7 +80,7 @@ addLayer("f", {
             }],
         ["display-text",
             function() { 
-                return 'There is a '+formatWhole(player.f.maxcd)+'-second cooldown of resetting for Fans.' 
+                return 'There is a '+formatWhole(player.f.maxcd)+'-second cooldown when resetting for Fans.' 
             },
             { 
                 "color": "#dfdfdf"
@@ -101,6 +102,8 @@ addLayer("f", {
         let power = new Decimal(1.5)
         if (hasUpgrade('f', 11)) power = power.times(2)
         if (hasUpgrade('f', 12)) mult = mult.times(upgradeEffect('f', 12))
+        if (hasUpgrade('f', 32)) power = power.times(2)
+        if (hasUpgrade('f', 42)) power = power.times(1.5)
         let x = player.f.points.add(1).pow(power).times(mult)
         return x
     },
@@ -189,7 +192,11 @@ addLayer("f", {
                 return new Decimal(10)
             },
             effect() {
-                return player.money.best.add(1).log(10).add(1).log(10).ceil()
+                let logbase = new Decimal(10)
+                if (hasUpgrade('f', 34)) logbase = new Decimal(2)
+                let ol = logbase
+                if (hasUpgrade('f', 43)) ol = new Decimal(1.1)
+                return player.money.best.add(1).log(logbase).add(1).log(ol).ceil()
             },
             effectDisplay() {
                 return format(upgradeEffect(this.layer, this.id))+"x"
@@ -251,13 +258,17 @@ addLayer("f", {
             },
         },
         24: {
-            title: "Cross Promotion",
+            title: "Cross Promotion II",
             description: "Fans gain is increased based on ceil(log5(log5(Popular-ity))).",
             cost() {
                 return new Decimal(100)
             },
             effect() {
-                return player.points.add(1).log(5).add(1).log(5).ceil()
+                let logbase = new Decimal(5)
+                if (hasUpgrade('f', 35)) logbase = new Decimal(1.5)
+                let ol = logbase
+                if (hasUpgrade('f', 43)) ol = new Decimal(1.1)
+                return player.points.add(1).log(logbase).add(1).log(ol).ceil()
             },
             effectDisplay() {
                 return format(upgradeEffect(this.layer, this.id))+"x"
@@ -282,6 +293,119 @@ addLayer("f", {
                 return hasUpgrade('f', 15) && hasUpgrade('f', 24)
             },
         },
+        31: {
+            title: "Attract More Fans II",
+            description: "Fans cooldown is reduced by a third.",
+            cost() {
+                return new Decimal(1000)
+            },
+            unlocked() {
+                return hasUpgrade('f', 21)
+            },
+        },
+        32: {
+            title: "National Top 25 Fan Club",
+            description: "Square Fans effect again.",
+            cost() {
+                return new Decimal(1004)
+            },
+            unlocked() {
+                return hasUpgrade('f', 22) && hasUpgrade('f', 31)
+            },
+        },
+        33: {
+            title: "Mass Album Purchase",
+            description: "Double Album Sales.",
+            cost() {
+                return new Decimal(1111)
+            },
+            effect() {
+                return new Decimal(2)
+            },
+            unlocked() {
+                return hasUpgrade('f', 23) && hasUpgrade('f', 32)
+            },
+        },
+        34: {
+            title: "Cross Promotion III",
+            description: "Reduce the both log bases in <b>Cross Promotion</b> to 2.",
+            cost() {
+                return new Decimal(1207)
+            },
+            unlocked() {
+                return hasUpgrade('f', 24) && hasUpgrade('f', 33)
+            },
+        },
+        35: {
+            title: "Cross Promotion IV",
+            description: "Reduce the both log bases in <b>Cross Promotion II</b> to 1.5.",
+            cost() {
+                return new Decimal(2015)
+            },
+            unlocked() {
+                return hasUpgrade('f', 25) && hasUpgrade('f', 34)
+            },
+        },
+        41: {
+            title: "Attract More Fans III",
+            description: "Fans cooldown is cut in half.",
+            cost() {
+                return new Decimal(6000)
+            },
+            unlocked() {
+                return hasUpgrade('f', 31)
+            },
+        },
+        42: {
+            title: "National Top 10 Fan Club",
+            description: "Raise Fans effect ^1.5.",
+            cost() {
+                return new Decimal(16000)
+            },
+            unlocked() {
+                return hasUpgrade('f', 32) && hasUpgrade('f', 41)
+            },
+        },
+        43: {
+            title: "Cross Promotion V",
+            description: "Reduce the outer log bases in <b>Cross Promotion</b> and <b>Cross Promotion II</b> to 1.1.",
+            cost() {
+                return new Decimal(21000)
+            },
+            unlocked() {
+                return hasUpgrade('f', 33) && hasUpgrade('f', 42)
+            },
+        },
+        44: {
+            title: "User-Created Banner Ad",
+            description: "Cube <b>Banner Ad</b> effect.",
+            cost() {
+                return new Decimal(250000)
+            },
+            unlocked() {
+                return hasUpgrade('f', 34) && hasUpgrade('f', 43)
+            },
+        },
+        45: {
+            title: "Attract More Fans IV",
+            description: "Increase Fans gain by 1% for every Money Buyable level.",
+            effect() {
+                let levels = new Decimal(0)
+                levels = levels.add(getBuyableAmount('money', 11))
+                levels = levels.add(getBuyableAmount('money', 12))
+                levels = levels.add(getBuyableAmount('money', 13))
+                return levels.times(0.01).add(1)
+            },
+            effectDisplay() {
+                return format(upgradeEffect(this.layer, this.id))+"x"
+            },
+            cost() {
+                return new Decimal(500000)
+            },
+            unlocked() {
+                return hasUpgrade('f', 35) && hasUpgrade('f', 44)
+            },
+        },
     },
     layerShown(){
         return player.money.best.gte(new Decimal("1.79e308"))
@@ -293,6 +417,8 @@ addLayer("f", {
         let time = new Decimal(15)
         if (hasUpgrade('f', 21)) time = time.times(0.5)
         if (hasUpgrade('f', 22)) time = time.times(0.4)
+        if (hasUpgrade('f', 31)) time = time.times(2).div(3)
+        if (hasUpgrade('f', 41)) time = time.times(0.5)
         player.f.maxcd = time
     },
     update(diff) {
@@ -300,7 +426,7 @@ addLayer("f", {
         if (player.f.best.lt(player.f.points)) player.f.best = player.f.points
     },
     autoPrestige() {
-        return hasMilestone('f', 1)
+        return hasMilestone('f', 1) && player.f.auto
     },
     doReset(resettingLayer) {
 		let keep = []

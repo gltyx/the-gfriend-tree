@@ -12,8 +12,8 @@ let modInfo = {
 }
 
 let VERSION = {
-	num: "0.25",
-	name: "Fans Update Part 1",
+	num: "0.26",
+	name: "Fans Update Part 2",
 }
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
@@ -50,6 +50,7 @@ function getPointGen() {
 	if (hasUpgrade('g', 34)) gain = gain.times(upgradeEffect('g', 34))
 	if (hasUpgrade('g', 35)) gain = gain.times(upgradeEffect('g', 35))
 	if (hasMilestone('g', 3)) gain = gain.times(player.g.salesEffect)
+	if (player.f.unlocked) gain = gain.times(tmp.f.effect)
 	return gain
 }
 
@@ -77,12 +78,12 @@ function formatDay() {
 // Display extra things at the top of the page
 var displayThings = [
 	formatDay(),
-	"Current Endgame: 1e380 Money and 1,000 Fans",
+	"Current Endgame: 3.16e618 Money and 10,000,000 Fans",
 ]
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.money.points.gte(new Decimal("1e380")) && player.f.points.gte(1000)
+	return player.money.points.gte(new Decimal("3.16e618")) && player.f.points.gte(1e7)
 }
 
 

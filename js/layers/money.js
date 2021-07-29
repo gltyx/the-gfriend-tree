@@ -273,6 +273,7 @@ addLayer("money", {
                 let exp = new Decimal(1)
                 if (hasUpgrade('money', 25)) exp = new Decimal(1.25)
                 if (hasUpgrade('g', 21)) exp = exp.add(upgradeEffect('g', 21))
+                if (hasUpgrade('f', 44)) exp = exp.times(3)
                 return n.pow(exp)
             },
             unlocked() {
@@ -363,6 +364,7 @@ addLayer("money", {
         if (player.g.unlocked) gain = gain.times(tmp.g.effect)
         if (hasUpgrade('g', 15)) gain = gain.times(upgradeEffect('g', 15))
         if (hasMilestone('g', 3)) gain = gain.times(player.g.salesEffect)
+        if (player.f.unlocked) gain = gain.times(tmp.f.effect)
         player.money.ps = gain
         player.money.points = player.money.points.add(gain.times(diff))
         if (player.money.best.lt(player.money.points)) player.money.best = player.money.points

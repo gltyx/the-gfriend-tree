@@ -18,7 +18,7 @@ addLayer("ach", {
             content: [
                 ["display-text",
                     function() { 
-                        return '<h2>Achievements: '+player.ach.points+'/75 Completed</h2>' 
+                        return '<h2>Achievements: '+player.ach.points+'/82 Completed</h2>' 
                     },
                     { 
                         "color": "#dfdfdf"
@@ -29,7 +29,7 @@ addLayer("ach", {
         },
     },
     tooltip() {
-        return "Achievements<br>("+player.ach.points+"/75)"
+        return "Achievements<br>("+player.ach.points+"/82)"
     },
     achievements: {
         11: {
@@ -783,6 +783,76 @@ addLayer("ach", {
             },
         },
         116: {
+            name: "GANGNAM STYLE",
+            done() {
+                return player.g.views.gte(4.124e9)
+            },
+            tooltip: "Reach 4.12e9 Video Views.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        117: {
+            name: "Multimillion Seller",
+            done() {
+                return player.g.sales.gte(1e7)
+            },
+            tooltip: "Reach 10,000,000 Album Sales.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        121: {
+            name: "Decent Fan Club",
+            done() {
+                return player.f.points.gte(10000)
+            },
+            tooltip: "Reach 10,000 Fans.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        122: {
+            name: "Big Fan Club",
+            done() {
+                return player.f.points.gte(1e5)
+            },
+            tooltip: "Reach 100,000 Fans.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        123: {
+            name: "BIG Fan Club",
+            done() {
+                return player.f.points.gte(1e6)
+            },
+            tooltip: "Reach 1,000,000 Fans.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        124: {
+            name: "BIGG Fan Club",
+            done() {
+                return player.f.points.gte(1e8)
+            },
+            tooltip: "Reach 100,000,000 Fans.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        125: {
+            name: "Worldwide Fan Club",
+            done() {
+                return player.f.points.gte(7.88e9)
+            },
+            tooltip: "Reach 7.88e9 Fans.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        126: {
             name: "[redacted]",
             done() {
                 return false
@@ -792,7 +862,7 @@ addLayer("ach", {
                 player.ach.points = player.ach.points.add(1)
             },
         },
-        117: {
+        127: {
             name: "[classified]",
             done() {
                 return false

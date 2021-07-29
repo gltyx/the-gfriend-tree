@@ -573,6 +573,7 @@ addLayer("g", {
             effect(x) {
                 let n = new Decimal(2).pow(x.div(2)).times(10)
                 if (hasUpgrade('f', 15)) n = n.times(upgradeEffect('f', 15))
+                if (hasUpgrade('f', 33)) n = n.times(upgradeEffect('f', 33))
                 return n
             },
             unlocked() {

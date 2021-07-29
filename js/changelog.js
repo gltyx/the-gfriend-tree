@@ -1,6 +1,11 @@
 var changelog = `<h1>Changelog:</h1><br><br>
 	<h2>v0.2x - Classic Era</h2><br><br>
-	<h3>v0.25 - Fans Update Part 1</h3> (07/25/21 +64)<br>
+	<h3>v0.26 - Fans Update Part 2</h3> (07/29/21 +68)<br>
+		- Added 10 more Fans upgrades.<br>
+		- Added 7 new achievements.<br>
+		- Fixed Fans effects not applying correctly.<br>
+		- Endgame is at 3.16e618 Money and 10,000,000 Fans.<br><br>
+	<h3>v0.25 - Fans Update Part 1</h3> (07/29/21 +68)<br>
 		- Added Fans, a new layer that unlocks at 1.79e308 Money.<br>
         - Divided layers.js into smaller files that contain only one layer each.<br>
 		- Added 11 new achievements.<br>
