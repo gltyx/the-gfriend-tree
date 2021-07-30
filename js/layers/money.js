@@ -374,6 +374,7 @@ addLayer("money", {
           if (hasUpgrade('money', 31) && player.money.auto2) tmp.money.buyables[13].buy()
           if (hasUpgrade('money', 24) && player.money.auto1) tmp.money.buyables[12].buy()
           if (hasUpgrade('money', 22) && player.money.auto) tmp.money.buyables[11].buy()
+          if (player.money.points.lt(0)) player.money.points = new Decimal(0)
         }
     },
     doReset(resettingLayer) {

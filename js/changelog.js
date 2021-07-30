@@ -1,5 +1,8 @@
 var changelog = `<h1>Changelog:</h1><br><br>
 	<h2>v0.2x - Classic Era</h2><br><br>
+	<h3>v0.27 - Fans Update Hotfix</h3> (07/30/21 +69(nice))<br>
+		- Added a favicon.<br>
+		- Fixed negative money bug.<br><br>
 	<h3>v0.26 - Fans Update Part 2</h3> (07/29/21 +68)<br>
 		- Added 10 more Fans upgrades.<br>
 		- Added 7 new achievements.<br>
