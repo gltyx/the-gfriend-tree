@@ -309,6 +309,7 @@ addLayer("money", {
                 if (hasUpgrade('money', 34)) base = base.add(0.1)
                 if (hasUpgrade('g', 22)) base = base.add(upgradeEffect('g', 22))
                 if (hasUpgrade('g', 34)) base = base.add(0.015)
+                if (hasUpgrade('f', 55)) base = base.add(0.05)
                 return base.pow(x)
             },
             unlocked() {
@@ -344,7 +345,9 @@ addLayer("money", {
                 let m = getBuyableAmount('money', 12)
                 if (!hasUpgrade('money', 32)) n = new Decimal(0)
                 if (!hasUpgrade('money', 33)) m = new Decimal(0)
-                return new Decimal(2).pow(x.pow(0.95)).times(new Decimal(1).add(n.times(0.1))).times(m.times(0.5).add(1))
+                let base = new Decimal(2)
+                if (hasUpgrade('f', 53)) base = base.add(0.5)
+                return new Decimal(base).pow(x.pow(0.95)).times(new Decimal(1).add(n.times(0.1))).times(m.times(0.5).add(1))
             },
             unlocked() {
                 return hasUpgrade('money', 31)

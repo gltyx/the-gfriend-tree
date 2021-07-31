@@ -42,6 +42,7 @@ addLayer("f", {
         if (hasUpgrade('f', 14)) gain = gain.times(upgradeEffect('f', 14))
         if (hasUpgrade('f', 24)) gain = gain.times(upgradeEffect('f', 24))
         if (hasUpgrade('f', 45)) gain = gain.times(upgradeEffect('f', 45))
+        if (hasUpgrade('f', 54)) gain = gain.times(upgradeEffect('f', 54))
         return gain
     },
     row: 1, // Row the layer is in on the tree (0 is the first row)
@@ -95,6 +96,8 @@ addLayer("f", {
         "blank",
         "milestones",
         "blank",
+        "buyables",
+        "blank",
         "upgrades",
     ],
     effect() {
@@ -104,7 +107,9 @@ addLayer("f", {
         if (hasUpgrade('f', 12)) mult = mult.times(upgradeEffect('f', 12))
         if (hasUpgrade('f', 32)) power = power.times(2)
         if (hasUpgrade('f', 42)) power = power.times(1.5)
+        if (hasUpgrade('f', 52)) power = power.times(1.5)
         let x = player.f.points.add(1).pow(power).times(mult)
+        if (hasMilestone('f', 3)) x = player.f.best.add(1).pow(power).times(mult)
         return x
     },
     effectDescription() {
@@ -139,6 +144,13 @@ addLayer("f", {
             effectDescription: "Fans reset nothing.",
             done() {
                 return player.f.points.gte(100)
+            },
+        },
+        3: {
+            requirementDescription: "250,000,000 Fans",
+            effectDescription: "Fans effect is based on the best amount, and unlock a Fans buyable.",
+            done() {
+                return player.f.points.gte(2.5e8)
             },
         },
     },
@@ -348,7 +360,7 @@ addLayer("f", {
         },
         41: {
             title: "Attract More Fans III",
-            description: "Fans cooldown is cut in half.",
+            description: "Fans cooldown is halved.",
             cost() {
                 return new Decimal(6000)
             },
@@ -406,6 +418,94 @@ addLayer("f", {
                 return hasUpgrade('f', 35) && hasUpgrade('f', 44)
             },
         },
+        51: {
+            title: "Attract More Fans V",
+            description: "Fans cooldown is halved.",
+            cost() {
+                return new Decimal(1e7)
+            },
+            unlocked() {
+                return hasUpgrade('f', 41)
+            },
+        },
+        52: {
+            title: "National Top 3 Fan Club",
+            description: "Raise Fans effect ^1.5.",
+            cost() {
+                return new Decimal(1.5e7)
+            },
+            unlocked() {
+                return hasUpgrade('f', 42) && hasUpgrade('f', 51)
+            },
+        },
+        53: {
+            title: "Fan Investments",
+            description: "Increase <b>Investment</b> effect base by 0.5.",
+            cost() {
+                return new Decimal(2e7)
+            },
+            unlocked() {
+                return hasUpgrade('f', 43) && hasUpgrade('f', 52)
+            },
+        },
+        54: {
+            title: "Ran Out of Ideas",
+            description: "6x Fan Gain.",
+            effect() {
+                let levels = new Decimal(6)
+                return levels
+            },
+            cost() {
+                return new Decimal(2.5e7)
+            },
+            unlocked() {
+                return hasUpgrade('f', 44) && hasUpgrade('f', 53)
+            },
+        },
+        55: {
+            title: "Fan-Created Video Ads",
+            description: "Increase <b>Video Ad</b> effect base by 0.05.",
+            cost() {
+                return new Decimal(99999999)
+            },
+            unlocked() {
+                return hasUpgrade('f', 45) && hasUpgrade('f', 54)
+            },
+        },
+    },
+    buyables: {
+        11: {
+            title: "Planet-spanning Fanbase",
+            cost(x) {
+                let n = new Decimal(5e7).times(new Decimal(2).pow(x.pow(1.025)))
+                if (x.gte(25)) n = n.pow(x.sub(4).times(0.05))
+                if (x.gte(50)) n = n.pow(x.sub(-1).times(0.02))
+                if (x.gte(100)) n = n.pow(x.sub(-1).times(0.01))
+                if (x.gte(200)) n = n.pow(x.sub(99).times(0.01))
+                if (x.gte(300)) n = n.pow(x.sub(199).times(0.01))
+                return n
+            },
+            display() {
+                return "<h3>Level:</h3> "+formatWhole(getBuyableAmount('f', 11))+"<br><h3>Effect:</h3> +"+format(buyableEffect('f', 11))+" to GFRIEND Songs effect base<br><h3>Cost:</h3> "+format(tmp.f.buyables[11].cost)+" Fans"
+            },
+            canAfford() {
+                return player[this.layer].points.gte(this.cost())
+            },
+            buy() {
+                if (this.canAfford)
+                {
+                    player[this.layer].points = player[this.layer].points.sub(tmp[this.layer].buyables[this.id].cost)
+                    addBuyables(this.layer, this.id, 1)
+                }
+            },
+            effect(x) {
+                let base = new Decimal(50).pow(x)
+                return base
+            },
+            unlocked() {
+                return hasUpgrade('money', 31)
+            },
+        },
     },
     layerShown(){
         return player.money.best.gte(new Decimal("1.79e308"))
@@ -419,6 +519,7 @@ addLayer("f", {
         if (hasUpgrade('f', 22)) time = time.times(0.4)
         if (hasUpgrade('f', 31)) time = time.times(2).div(3)
         if (hasUpgrade('f', 41)) time = time.times(0.5)
+        if (hasUpgrade('f', 51)) time = time.times(0.5)
         player.f.maxcd = time
     },
     update(diff) {

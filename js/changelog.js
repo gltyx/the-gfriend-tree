@@ -1,5 +1,8 @@
 var changelog = `<h1>Changelog:</h1><br><br>
 	<h2>v0.2x - Classic Era</h2><br><br>
+	<h3>v0.28 - Fans Update Part 3</h3> (07/31/21 +70)<br>
+		- Added 5 more Fans upgrades and a Fans buyable.<br>
+		- Endgame is at 1e1180 Money.<br><br>
 	<h3>v0.27 - Fans Update Hotfix</h3> (07/30/21 +69(nice))<br>
 		- Added a favicon.<br>
 		- Fixed negative money bug.<br><br>

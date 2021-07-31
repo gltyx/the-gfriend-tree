@@ -12,8 +12,8 @@ let modInfo = {
 }
 
 let VERSION = {
-	num: "0.27",
-	name: "Fans Update Hotfix",
+	num: "0.28",
+	name: "Fans Update Part 3",
 }
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
@@ -78,12 +78,12 @@ function formatDay() {
 // Display extra things at the top of the page
 var displayThings = [
 	formatDay(),
-	"Current Endgame: 3.16e618 Money and 10,000,000 Fans",
+	"Current Endgame: 1e1180 Money",
 ]
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.money.points.gte(new Decimal("3.16e618")) && player.f.points.gte(1e7)
+	return player.money.points.gte(new Decimal("1e1180"))
 }
 
 

@@ -147,7 +147,9 @@ addLayer("g", {
         },
     },
     effect() {
-        let x = new Decimal(5).pow(player.g.points)
+        let base = new Decimal(5)
+        base = base.add(buyableEffect('f', 11))
+        let x = new Decimal(base).pow(player.g.points)
         return x
     },
     effectDescription() {

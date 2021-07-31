@@ -18,7 +18,7 @@ addLayer("ach", {
             content: [
                 ["display-text",
                     function() { 
-                        return '<h2>Achievements: '+player.ach.points+'/82 Completed</h2>' 
+                        return '<h2>Achievements: '+player.ach.points+'/84 Completed</h2>' 
                     },
                     { 
                         "color": "#dfdfdf"
@@ -29,7 +29,7 @@ addLayer("ach", {
         },
     },
     tooltip() {
-        return "Achievements<br>("+player.ach.points+"/82)"
+        return "Achievements<br>("+player.ach.points+"/84)"
     },
     achievements: {
         11: {
@@ -833,6 +833,26 @@ addLayer("ach", {
             },
         },
         124: {
+            name: "Infinitely Popular",
+            done() {
+                return player.points.gte(new Decimal("1.79e308"))
+            },
+            tooltip: "Reach 1.79e308 Popularity.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        125: {
+            name: "PewDiePie",
+            done() {
+                return player.g.subs.gte(1.1e8)
+            },
+            tooltip: "Reach 110,000,000 Subscribers.",
+            onComplete() {
+                player.ach.points = player.ach.points.add(1)
+            },
+        },
+        126: {
             name: "BIGG Fan Club",
             done() {
                 return player.f.points.gte(1e8)
@@ -842,32 +862,12 @@ addLayer("ach", {
                 player.ach.points = player.ach.points.add(1)
             },
         },
-        125: {
+        127: {
             name: "Worldwide Fan Club",
             done() {
                 return player.f.points.gte(7.88e9)
             },
             tooltip: "Reach 7.88e9 Fans.",
-            onComplete() {
-                player.ach.points = player.ach.points.add(1)
-            },
-        },
-        126: {
-            name: "[redacted]",
-            done() {
-                return false
-            },
-            tooltip: "[redacted]",
-            onComplete() {
-                player.ach.points = player.ach.points.add(1)
-            },
-        },
-        127: {
-            name: "[classified]",
-            done() {
-                return false
-            },
-            tooltip: "[classified]",
             onComplete() {
                 player.ach.points = player.ach.points.add(1)
             },
