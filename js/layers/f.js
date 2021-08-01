@@ -291,7 +291,7 @@ addLayer("f", {
         },
         25: {
             title: "Album Promotion II",
-            description: "<b>Album Promotion</b>is stronger based on the best number of Fans.",
+            description: "<b>Album Promotion</b> is stronger based on the best number of Fans.",
             cost() {
                 return new Decimal(150)
             },
@@ -503,7 +503,7 @@ addLayer("f", {
                 return base
             },
             unlocked() {
-                return hasUpgrade('money', 31)
+                return hasMilestone('f', 3)
             },
         },
     },

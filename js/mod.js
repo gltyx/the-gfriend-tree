@@ -12,8 +12,8 @@ let modInfo = {
 }
 
 let VERSION = {
-	num: "0.28",
-	name: "Fans Update Part 3",
+	num: "0.29",
+	name: "Fans Last Hotfix",
 }
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
